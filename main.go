@@ -1,8 +1,8 @@
 package main
 
 // TODO's
-// Perform a GET requests to the github api endpoint and
-// return the data from a specific user.
+// get the issues from a specific repository
+// get the pull request from a specific repository
 
 import (
 	"encoding/json"
@@ -10,140 +10,118 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"time"
+	"net/url"
+	"os"
 
-	"github.com/spf13/viper"
+	"github.com/ksrof/gha-trello/models"
+	"github.com/ksrof/gha-trello/utils"
 )
 
-const baseURL string = "https://api.github.com"
+var (
+	baseURL string = "https://api.github.com"
+	token   string = os.Getenv("GH_TOKEN")
+	user    string = os.Getenv("GH_USER")
+	repo    string = os.Getenv("GH_REPO")
+)
 
-// User represents the data structure of the
-// api.github.com/user response body.
-type User struct {
-	Login                   string      `json:"login"`
-	ID                      int         `json:"id"`
-	NodeID                  string      `json:"node_id"`
-	AvatarURL               string      `json:"avatar_url"`
-	GravatarID              string      `json:"gravatar_id"`
-	URL                     string      `json:"url"`
-	HTMLURL                 string      `json:"html_url"`
-	FollowersURL            string      `json:"followers_url"`
-	FollowingURL            string      `json:"following_url"`
-	GistsURL                string      `json:"gists_url"`
-	StarredURL              string      `json:"starred_url"`
-	SubscriptionsURL        string      `json:"subscriptions_url"`
-	OrganizationsURL        string      `json:"organizations_url"`
-	ReposURL                string      `json:"repos_url"`
-	EventsURL               string      `json:"events_url"`
-	ReceivedEventsURL       string      `json:"received_events_url"`
-	Type                    string      `json:"type"`
-	SiteAdmin               bool        `json:"site_admin"`
-	Name                    string      `json:"name"`
-	Company                 string      `json:"company"`
-	Blog                    string      `json:"blog"`
-	Location                string      `json:"location"`
-	Email                   interface{} `json:"email"`
-	Hireable                bool        `json:"hireable"`
-	Bio                     string      `json:"bio"`
-	TwitterUsername         string      `json:"twitter_username"`
-	PublicRepos             int         `json:"public_repos"`
-	PublicGists             int         `json:"public_gists"`
-	Followers               int         `json:"followers"`
-	Following               int         `json:"following"`
-	CreatedAt               time.Time   `json:"created_at"`
-	UpdatedAt               time.Time   `json:"updated_at"`
-	PrivateGists            int         `json:"private_gists"`
-	TotalPrivateRepos       int         `json:"total_private_repos"`
-	OwnedPrivateRepos       int         `json:"owned_private_repos"`
-	DiskUsage               int         `json:"disk_usage"`
-	Collaborators           int         `json:"collaborators"`
-	TwoFactorAuthentication bool        `json:"two_factor_authentication"`
-	Plan                    struct {
-		Name          string `json:"name"`
-		Space         int    `json:"space"`
-		Collaborators int    `json:"collaborators"`
-		PrivateRepos  int    `json:"private_repos"`
-	} `json:"plan"`
-}
-
-// jsonify takes a response body converts it to json
-// using the User struct and returns it as a string.
-func jsonify(body []byte) (string, error) {
-	var user User
-
-	err := json.Unmarshal(body, &user)
+// getIssues performs a GET requests to api.github.com/repos/user/repo/issues
+// with an Authorization token and returns the response as a struct.
+func getIssues(ghToken, ghUser, ghRepo string) (models.Issue, error) {
+	// Parse the baseURL with the env values
+	reqURL, err := url.Parse(fmt.Sprintf("%s/repos/%s/%s/issues", baseURL, ghUser, ghRepo))
 	if err != nil {
-		return "", fmt.Errorf("unable to unmarshal body response: %v", err)
+		return models.Issue{}, fmt.Errorf("unable to parse url: %v", err)
 	}
 
-	json, err := json.MarshalIndent(user, "", "\t")
+	req, err := http.NewRequest("GET", reqURL.String(), nil)
 	if err != nil {
-		return "", fmt.Errorf("unable to marshal user struct: %v", err)
+		return models.Issue{}, fmt.Errorf("unable to create new request: %v", err)
 	}
 
-	return string(json), nil
-}
-
-// getUser performs a GET request to api.github.com/user
-// with an Authorization token and prints the response formatted.
-func getUser(token string) error {
-	reqURL := fmt.Sprintf("%s/user", baseURL)
-	req, err := http.NewRequest("GET", reqURL, nil)
+	// Set the Authorization header using the
+	// Github Personal Access Token
+	token, err := utils.SetAuth(ghToken)
 	if err != nil {
-		return fmt.Errorf("unable to perform new request: %v", err)
+		return models.Issue{}, fmt.Errorf("unable to get token: %v", err)
 	}
-
-	// Set Authorization Header with Github Personal Access Token
-	authToken := fmt.Sprintf("token %s", token)
-	req.Header.Set("Authorization", authToken)
+	req.Header.Set("Authorization", token)
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return fmt.Errorf("unable to perform GET request: %v", err)
+		return models.Issue{}, fmt.Errorf("unable to perform GET request: %v", err)
 	}
-
-	// Check the Error return value
-	defer func() {
-		err = resp.Body.Close()
-		if err != nil {
-			log.Fatal(err)
-		}
-	}()
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return fmt.Errorf("unable to read response body: %v", err)
+		return models.Issue{}, fmt.Errorf("unable to read body response: %v", err)
 	}
 
-	// Format the response body
-	respJSON, err := jsonify(body)
+	// Unmarshal the body response values into
+	// the models.Issue data structure
+	var issue models.Issue
+	err = json.Unmarshal(body, &issue)
 	if err != nil {
-		return fmt.Errorf("unable to parse respons: %v", err)
+		return models.Issue{}, fmt.Errorf("unable to unmarshal body response: %v", err)
 	}
 
-	// Output the formatted response
-	fmt.Println(respJSON)
+	return issue, nil
+}
 
-	return nil
+// getPulls performs a GET requests to api.github.com/repos/user/repo/pulls
+// with an Authorization token and returns the response as a struct.
+func getPulls(ghToken, ghUser, ghRepo string) (models.Pull, error) {
+	// Parse the baseURL with the env values
+	reqURL, err := url.Parse(fmt.Sprintf("%s/repos/%s/%s/pulls", baseURL, ghUser, ghRepo))
+	if err != nil {
+		return models.Pull{}, fmt.Errorf("unable to parse url: %v", err)
+	}
+
+	req, err := http.NewRequest("GET", reqURL.String(), nil)
+	if err != nil {
+		return models.Pull{}, fmt.Errorf("unable to create new request: %v", err)
+	}
+
+	// Set the Authorization header using the
+	// Github Personal Access Token
+	token, err := utils.SetAuth(ghToken)
+	if err != nil {
+		return models.Pull{}, fmt.Errorf("unable to get token: %v", err)
+	}
+	req.Header.Set("Authorization", token)
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return models.Pull{}, fmt.Errorf("unable to perform GET request: %v", err)
+	}
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return models.Pull{}, fmt.Errorf("unable to read body response: %v", err)
+	}
+
+	// Unmarshal the body response values into
+	// the models.Pull data structure
+	var pull models.Pull
+	err = json.Unmarshal(body, &pull)
+	if err != nil {
+		return models.Pull{}, fmt.Errorf("unable to unmarshal body response: %v", err)
+	}
+
+	return pull, nil
 }
 
 func main() {
-	// Load environment configuration from YAML file
-	viper.SetConfigName("env")
-	viper.SetConfigType("yaml")
-	viper.AddConfigPath(".")
-	viper.AutomaticEnv()
-
-	err := viper.ReadInConfig()
+	issue, err := getIssues(token, user, repo)
 	if err != nil {
-		log.Fatalf("unable to read environment configuration: %v", err)
+		log.Fatalf("unable to get issues from repository: %v", err)
 	}
 
-	// Save environment configuration values as variables
-	token := viper.GetString("gh_config.token")
+	fmt.Printf("Issue Title: %s", issue[0].Title)
 
-	err = getUser(token)
+	pull, err := getPulls(token, user, repo)
 	if err != nil {
-		log.Fatalf("unable to get user: %v", err)
+		log.Fatalf("unable to get pulls from repository: %v", err)
 	}
+
+	fmt.Printf("Pull Title: %s", pull[0].Title)
 }
