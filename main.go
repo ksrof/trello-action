@@ -3,6 +3,7 @@ package main
 // TODO's
 // get the issues from a specific repository
 // get the pull request from a specific repository
+// create a card containing the details of the issue or pull request
 
 import (
 	"encoding/json"
@@ -11,24 +12,24 @@ import (
 	"log"
 	"net/http"
 	"net/url"
-	"os"
+	"strings"
 
 	"github.com/ksrof/gha-trello/models"
 	"github.com/ksrof/gha-trello/utils"
 )
 
 var (
-	baseURL string = "https://api.github.com"
-	token   string = os.Getenv("GH_TOKEN")
-	user    string = os.Getenv("GH_USER")
-	repo    string = os.Getenv("GH_REPO")
+	// Trello base url
+	trURL string = "https://api.trello.com/1"
+	// Github base url
+	ghURL string = "https://api.github.com"
 )
 
 // getIssues performs a GET requests to api.github.com/repos/user/repo/issues
 // with an Authorization token and returns the response as a struct.
-func getIssues(ghToken, ghUser, ghRepo string) (models.Issue, error) {
-	// Parse the baseURL with the env values
-	reqURL, err := url.Parse(fmt.Sprintf("%s/repos/%s/%s/issues", baseURL, ghUser, ghRepo))
+func getIssues(token, user, repo string) (models.Issue, error) {
+	// Parse the ghURL with the env values
+	reqURL, err := url.Parse(fmt.Sprintf("%s/repos/%s/%s/issues", ghURL, user, repo))
 	if err != nil {
 		return models.Issue{}, fmt.Errorf("unable to parse url: %v", err)
 	}
@@ -40,11 +41,11 @@ func getIssues(ghToken, ghUser, ghRepo string) (models.Issue, error) {
 
 	// Set the Authorization header using the
 	// Github Personal Access Token
-	token, err := utils.SetAuth(ghToken)
+	authToken, err := utils.SetAuth(token)
 	if err != nil {
 		return models.Issue{}, fmt.Errorf("unable to get token: %v", err)
 	}
-	req.Header.Set("Authorization", token)
+	req.Header.Set("Authorization", authToken)
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
@@ -69,9 +70,9 @@ func getIssues(ghToken, ghUser, ghRepo string) (models.Issue, error) {
 
 // getPulls performs a GET requests to api.github.com/repos/user/repo/pulls
 // with an Authorization token and returns the response as a struct.
-func getPulls(ghToken, ghUser, ghRepo string) (models.Pull, error) {
-	// Parse the baseURL with the env values
-	reqURL, err := url.Parse(fmt.Sprintf("%s/repos/%s/%s/pulls", baseURL, ghUser, ghRepo))
+func getPulls(token, user, repo string) (models.Pull, error) {
+	// Parse the ghURL with the env values
+	reqURL, err := url.Parse(fmt.Sprintf("%s/repos/%s/%s/pulls", ghURL, user, repo))
 	if err != nil {
 		return models.Pull{}, fmt.Errorf("unable to parse url: %v", err)
 	}
@@ -83,11 +84,11 @@ func getPulls(ghToken, ghUser, ghRepo string) (models.Pull, error) {
 
 	// Set the Authorization header using the
 	// Github Personal Access Token
-	token, err := utils.SetAuth(ghToken)
+	authToken, err := utils.SetAuth(token)
 	if err != nil {
 		return models.Pull{}, fmt.Errorf("unable to get token: %v", err)
 	}
-	req.Header.Set("Authorization", token)
+	req.Header.Set("Authorization", authToken)
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
@@ -110,18 +111,88 @@ func getPulls(ghToken, ghUser, ghRepo string) (models.Pull, error) {
 	return pull, nil
 }
 
+// createCard performs a POST request to api.trello.com/1/cards
+// creating a new card on the trello board with the data
+// provided by the new Issue or PR got from Github
+func createCard(config utils.Config) error {
+	reqURL, err := url.Parse(fmt.Sprintf("%s/cards", trURL))
+	if err != nil {
+		return fmt.Errorf("unable to parse url: %v", err)
+	}
+
+	req, err := http.NewRequest("POST", reqURL.String(), nil)
+	if err != nil {
+		return fmt.Errorf("unable to create new request: %v", err)
+	}
+
+	// Set the default parameters needed by the trello API
+	query := req.URL.Query()
+	query.Add("idList", config.TrelloIDList)
+	query.Add("key", config.TrelloKey)
+	query.Add("token", config.TrelloToken)
+
+	// Determine which data to get based on
+	// the given action type
+	switch strings.ToLower(config.Action) {
+	case "pull":
+		pull, err := getPulls(config.GithubToken, config.GithubUser, config.GithubRepo)
+		if err != nil {
+			return fmt.Errorf("unable to get pull request: %v", err)
+		}
+
+		// Set the parameters related to the data shown by the card
+		query.Add("name", fmt.Sprintf("%s %d", pull[0].Title, pull[0].Number))
+		query.Add("urlSource", pull[0].URL)
+		req.URL.RawQuery = query.Encode()
+
+		resp, err := http.DefaultClient.Do(req)
+		if err != nil {
+			return fmt.Errorf("unable to perform POST request: %v", err)
+		}
+
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return fmt.Errorf("unable to read body response: %v", err)
+		}
+
+		fmt.Printf("URL: %s", req.URL.RawQuery)
+		fmt.Printf("Body: %s", string(body))
+	case "issue":
+		issue, err := getIssues(config.GithubToken, config.GithubUser, config.GithubRepo)
+		if err != nil {
+			return fmt.Errorf("unable to get issues: %v", err)
+		}
+
+		// Set the parameters related to the data shown by the card
+		query.Add("name", fmt.Sprintf("%s %d", issue[0].Title, issue[0].Number))
+		query.Add("urlSource", issue[0].URL)
+		req.URL.RawQuery = query.Encode()
+
+		resp, err := http.DefaultClient.Do(req)
+		if err != nil {
+			return fmt.Errorf("unable to perform POST request: %v", err)
+		}
+
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return fmt.Errorf("unable to read body response: %v", err)
+		}
+
+		fmt.Printf("URL: %s", req.URL.RawQuery)
+		fmt.Printf("Body: %s", string(body))
+	}
+
+	return nil
+}
+
 func main() {
-	issue, err := getIssues(token, user, repo)
+	config, err := utils.SetEnv()
 	if err != nil {
-		log.Fatalf("unable to get issues from repository: %v", err)
+		log.Fatalf("unable to set environment: %v", err)
 	}
 
-	fmt.Printf("Issue Title: %s", issue[0].Title)
-
-	pull, err := getPulls(token, user, repo)
+	err = createCard(config)
 	if err != nil {
-		log.Fatalf("unable to get pulls from repository: %v", err)
+		log.Fatalf("unable to create card: %v", err)
 	}
-
-	fmt.Printf("Pull Title: %s", pull[0].Title)
 }
