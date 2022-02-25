@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-var env string = "dev"
+var env string = "prod"
 
 // Config represents the data structure
 // that holds the environment variables
