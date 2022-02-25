@@ -10,6 +10,8 @@ import (
 
 var env string = "dev"
 
+// Config represents the data structure
+// that holds the environment variables
 type Config struct {
 	TrelloKey    string
 	TrelloToken  string
@@ -20,6 +22,8 @@ type Config struct {
 	Action       string
 }
 
+// SetEnv sets the environment variables
+// using the Config struct and returns it
 func SetEnv() (Config, error) {
 	switch strings.ToLower(env) {
 	case "dev":
@@ -49,9 +53,9 @@ func SetEnv() (Config, error) {
 			TrelloKey:    os.Getenv("TRELLO_KEY"),
 			TrelloToken:  os.Getenv("TRELLO_TOKEN"),
 			TrelloIDList: os.Getenv("TRELLO_ID_LIST"),
-			GithubToken:  os.Getenv("GITHUB_TOKEN"),
-			GithubUser:   os.Getenv("GITHUB_USER"),
-			GithubRepo:   os.Getenv("GITHUB_REPO"),
+			GithubToken:  os.Getenv("GH_TOKEN"),
+			GithubUser:   os.Getenv("GH_USER"),
+			GithubRepo:   os.Getenv("GH_REPO"),
 			Action:       os.Getenv("ACTION"),
 		}
 
