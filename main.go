@@ -1,10 +1,5 @@
 package main
 
-// TODO's
-// get the issues from a specific repository
-// get the pull request from a specific repository
-// create a card containing the details of the issue or pull request
-
 import (
 	"encoding/json"
 	"fmt"
