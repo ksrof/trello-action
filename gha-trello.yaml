@@ -9,7 +9,7 @@ on:
 jobs:
   create-issue-card:
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'pull_request' }}
+    if: ${{ github.event_name == 'issues' }}
     steps:
       - uses: actions/checkout@v2
 
@@ -34,7 +34,7 @@ jobs:
 
   create-pull-card:
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'issues' }}
+    if: ${{ github.event_name == 'pull_request' }}
     steps:
       - uses: actions/checkout@v2
 
