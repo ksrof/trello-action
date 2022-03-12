@@ -16,11 +16,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Build a new http request with a given method, url and payload
 - Added data structure for environment variables
 - Added data structure for query parameters
+- Added CHANGELOG.md
 
 ### Changed
 - Updated .gitignore
 - Updated comments for godocs
 - Updated go.mod and go.sum
+- Update README.md
+- Update CHANGELOG.md
 
 ### Removed
 - Removed gha-trello.yaml
