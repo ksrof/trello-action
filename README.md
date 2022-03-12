@@ -2,24 +2,24 @@
 🤖 Easily automate the process of creating a new Trello card, use the power of Github Actions to create them when an Issue or a Pull Request is made!
 
 ## Functionalities
-- [x] Create Card when creating an Issue or Pull Request
-- [ ] Delete Card when closing an Issue or Pull Request
+- [x] Create card when creating an Issue or Pull Request
+- [ ] Move card when updating an Issue or Pull Request
+- [ ] Delete card when closing an Issue or Pull Request
 
-## Example
-This shows an example Github Actions workflow for adding a new Trello Card to a specific list when creating an Issue or Pull Request.
-```yaml
-name: Create Trello Card on Issue or PR
+## Examples
+The following examples show how you can automate the process of creating a new Trello card when a new Issue or a new Pull Request is opened!
+
+### Create Card From Issue
+```yml
+name: Create Card From Issue
 
 on:
   issues:
-    types: [opened]
-  pull_request:
     types: [opened]
 
 jobs:
   create-issue-card:
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'issues' }}
     steps:
       - uses: actions/checkout@v2
 
@@ -27,24 +27,30 @@ jobs:
         uses: actions/setup-go@v2
         with:
           go-version: 1.17
-
-      - name: Build
-        run: go build -v ./...
-
+        
       - name: Run
         env:
           TRELLO_KEY: ${{ secrets.TRELLO_KEY }}
           TRELLO_TOKEN: ${{ secrets.TRELLO_TOKEN }}
           TRELLO_ID_LIST: ${{ secrets.TRELLO_ID_LIST }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
-          GH_USER: ksrof
-          GH_REPO: gha-trello
+          GH_USER: user
+          GH_REPO: repo
           ACTION: issue
-        run: go run main.go
+        run: go run cmd/create/main.go
+```
 
+### Create Card From PR
+```yml
+name: Create Card From PR
+
+on:
+  pull_request:
+    types: [opened]
+
+jobs:
   create-pull-card:
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'pull_request' }}
     steps:
       - uses: actions/checkout@v2
 
@@ -53,21 +59,22 @@ jobs:
         with:
           go-version: 1.17
 
-      - name: Build
-        run: go build -v ./...
-
       - name: Run
         env:
           TRELLO_KEY: ${{ secrets.TRELLO_KEY }}
           TRELLO_TOKEN: ${{ secrets.TRELLO_TOKEN }}
           TRELLO_ID_LIST: ${{ secrets.TRELLO_ID_LIST }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
-          GH_USER: ksrof
-          GH_REPO: gha-trello
+          GH_USER: user
+          GH_REPO: repo
           ACTION: pull
-        run: go run main.go
+        run: go run cmd/create/main.go
 ```
-**Note:** The workflow is a work in progress, a lot of improvements will be made!
+
+**Note:** This project is a work in progress, a lot of improvements will be made!
+
+## Changelog
+Check out [`CHANGELOG.md`](https://github.com/ksrof/gha-trello/blob/main/CHANGELOG.md) to see details about past and recent releases!
 
 ## License
 The MIT License (MIT) - see [`license`](https://github.com/ksrof/gha-trello/blob/main/LICENSE) for more details.
