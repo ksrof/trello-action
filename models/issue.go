@@ -2,8 +2,7 @@ package models
 
 import "time"
 
-// Issue represents the data structure of the
-// api.github.com/repos/user/repo/issues response body.
+// Issue represents the data structure of the api.github.com/repos/user/repo/issues response body.
 type Issue []struct {
 	URL           string `json:"url"`
 	RepositoryURL string `json:"repository_url"`

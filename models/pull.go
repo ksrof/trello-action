@@ -2,8 +2,7 @@ package models
 
 import "time"
 
-// Pull represents the data structure of the
-// api.github.com/repos/user/repo/pulls response body.
+// Pull represents the data structure of the api.github.com/repos/user/repo/pulls response body.
 type Pull []struct {
 	URL      string `json:"url"`
 	ID       int    `json:"id"`
