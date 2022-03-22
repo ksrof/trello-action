@@ -24,19 +24,19 @@ func create(env models.Env) error {
 	}
 
 	switch strings.ToLower(env.Action) {
-	case "issue":
-		issue, err := github.GetIssues(env.GithubToken, env.GithubUser, env.GithubRepo)
+	case "issues":
+		issue, err := github.GetIssue(env.GithubToken, env.GithubUser, env.GithubRepo, env.ID)
 		if err != nil {
-			return fmt.Errorf("failed to get issues: %v", err)
+			return fmt.Errorf("failed to get issue: %v", err)
 		}
 
 		params := models.Params{
 			IDList: env.TrelloIDList,
 			Key:    env.TrelloKey,
 			Token:  env.TrelloToken,
-			Title:  issue[0].Title,
-			Number: strconv.Itoa(issue[0].Number),
-			URL:    issue[0].HTMLURL,
+			Title:  issue.Title,
+			Number: strconv.Itoa(issue.Number),
+			URL:    issue.HTMLURL,
 		}
 
 		req, err := internal.Params(params, newReq)
@@ -48,19 +48,19 @@ func create(env models.Env) error {
 		if err != nil {
 			return fmt.Errorf("failed to send POST request to the server: %v", err)
 		}
-	case "pull":
-		pull, err := github.GetPulls(env.GithubToken, env.GithubUser, env.GithubRepo)
+	case "pull_request":
+		pull, err := github.GetPull(env.GithubToken, env.GithubUser, env.GithubRepo, env.ID)
 		if err != nil {
-			return fmt.Errorf("failed to get pulls: %v", err)
+			return fmt.Errorf("failed to get pull: %v", err)
 		}
 
 		params := models.Params{
 			IDList: env.TrelloIDList,
 			Key:    env.TrelloKey,
 			Token:  env.TrelloToken,
-			Title:  pull[0].Title,
-			Number: strconv.Itoa(pull[0].Number),
-			URL:    pull[0].HTMLURL,
+			Title:  pull.Title,
+			Number: strconv.Itoa(pull.Number),
+			URL:    pull.HTMLURL,
 		}
 
 		req, err := internal.Params(params, newReq)
