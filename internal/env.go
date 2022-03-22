@@ -31,6 +31,7 @@ func Env() (models.Env, error) {
 			GithubUser:   viper.GetString("github.user"),
 			GithubRepo:   viper.GetString("github.repo"),
 			Action:       viper.GetString("action"),
+			ID:           viper.GetString("id"),
 		}
 
 		return env, nil
@@ -43,6 +44,7 @@ func Env() (models.Env, error) {
 			GithubUser:   os.Getenv("GH_USER"),
 			GithubRepo:   os.Getenv("GH_REPO"),
 			Action:       os.Getenv("ACTION"),
+			ID:           os.Getenv("ID"),
 		}
 
 		return env, nil

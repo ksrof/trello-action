@@ -9,4 +9,5 @@ type Env struct {
 	GithubUser   string
 	GithubRepo   string
 	Action       string
+	ID           string
 }
