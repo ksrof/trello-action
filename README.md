@@ -1,5 +1,5 @@
 # Github Actions + Trello
-🤖 Easily automate the process of creating a new Trello card, use the power of Github Actions to create them when an Issue or a Pull Request is made!
+🤖 Easily automate the process of creating, moving and deleting Trello Cards, use the power of Github Actions to perform requests on the Trello API when a new Issue or Pull Request gets made, updated, labeled or closed!
 
 ## Functionalities
 - [x] Create card when creating an Issue or Pull Request
