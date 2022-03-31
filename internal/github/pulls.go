@@ -6,8 +6,8 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/ksrof/gha-trello/internal/models"
-	"github.com/ksrof/gha-trello/internal/utils"
+	"github.com/ksrof/trello-action/internal/models"
+	"github.com/ksrof/trello-action/internal/utils"
 )
 
 // GetPull performs a GET request to api.github.com/repos/user/repo/pulls/id.

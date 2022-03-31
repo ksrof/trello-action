@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/ksrof/gha-trello/internal/models"
+	"github.com/ksrof/trello-action/internal/models"
 	"github.com/spf13/viper"
 )
 
