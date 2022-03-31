@@ -24,9 +24,10 @@ func Environment() (*models.Env, error) {
 
 		return &models.Env{
 			Trello: &models.Trello{
-				Key:    viper.GetString("trello.key"),
-				Token:  viper.GetString("trello.token"),
-				IDList: viper.GetString("trello.idList"),
+				Key:     viper.GetString("trello.key"),
+				Token:   viper.GetString("trello.token"),
+				IDBoard: viper.GetString("trello.idBoard"),
+				IDList:  viper.GetString("trello.idList"),
 			},
 			Github: &models.Github{
 				Token: viper.GetString("github.token"),
@@ -41,9 +42,10 @@ func Environment() (*models.Env, error) {
 	// Otherwise just get the values directly.
 	return &models.Env{
 		Trello: &models.Trello{
-			Key:    os.Getenv("TRELLO_KEY"),
-			Token:  os.Getenv("TRELLO_TOKEN"),
-			IDList: os.Getenv("TRELLO_ID_LIST"),
+			Key:     os.Getenv("TRELLO_KEY"),
+			Token:   os.Getenv("TRELLO_TOKEN"),
+			IDBoard: os.Getenv("TRELLO_ID_BOARD"),
+			IDList:  os.Getenv("TRELLO_ID_LIST"),
 		},
 		Github: &models.Github{
 			Token: os.Getenv("GH_TOKEN"),

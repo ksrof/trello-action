@@ -2,9 +2,10 @@ package models
 
 // Trello struct handles all data needed to work with the Trello API.
 type Trello struct {
-	Key    string
-	Token  string
-	IDList string
+	Key     string
+	Token   string
+	IDBoard string
+	IDList  string
 }
 
 // Github struct handles all data needed to work with the Github API.
