@@ -1,4 +1,4 @@
-module github.com/ksrof/gha-trello
+module github.com/ksrof/trello-action
 
 go 1.17
 
