@@ -12,17 +12,17 @@ import (
 func main() {
 	env, err := configs.Environment()
 	if err != nil {
-		log.Fatalf("failed to get load environment: %v", err)
+		log.Fatalf("failed to load environment: %v", err)
 	}
 
 	if env.Github.Event == "issues" {
-		response, err := github.GetIssue(*env)
+		issue, err := github.GetIssue(*env)
 		if err != nil {
 			log.Printf("failed to get issue: %v", err)
 		}
 
-		title := fmt.Sprint(response["title"])
-		url := fmt.Sprint(response["html_url"])
+		title := fmt.Sprint(issue["title"])
+		url := fmt.Sprint(issue["html_url"])
 
 		err = trello.CreateCard(*env, title, url)
 		if err != nil {
@@ -31,13 +31,13 @@ func main() {
 	}
 
 	if env.Github.Event == "pull_request" {
-		response, err := github.GetPull(*env)
+		pull, err := github.GetPull(*env)
 		if err != nil {
 			log.Printf("failed to get pull: %v", err)
 		}
 
-		title := fmt.Sprint(response["title"])
-		url := fmt.Sprint(response["html_url"])
+		title := fmt.Sprint(pull["title"])
+		url := fmt.Sprint(pull["html_url"])
 
 		err = trello.CreateCard(*env, title, url)
 		if err != nil {
