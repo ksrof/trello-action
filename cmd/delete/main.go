@@ -27,10 +27,10 @@ func main() {
 		}
 
 		for i := 0; i < len(cards); i++ {
-			title := fmt.Sprint(issue["title"])
-			name := fmt.Sprint(cards[i]["name"])
+			issueTitle := fmt.Sprint(issue["title"])
+			cardName := fmt.Sprint(cards[i]["name"])
 
-			if title == name {
+			if issueTitle == cardName {
 				err = trello.DeleteCard(*env, fmt.Sprint(cards[i]["id"]))
 				if err != nil {
 					log.Printf("failed to delete card: %v", err)
@@ -46,10 +46,10 @@ func main() {
 		}
 
 		for i := 0; i < len(cards); i++ {
-			title := fmt.Sprint(pull["title"])
-			name := fmt.Sprint(cards[i]["name"])
+			pullTitle := fmt.Sprint(pull["title"])
+			cardName := fmt.Sprint(cards[i]["name"])
 
-			if title == name {
+			if pullTitle == cardName {
 				err = trello.DeleteCard(*env, fmt.Sprint(cards[i]["id"]))
 				if err != nil {
 					log.Printf("failed to delete card: %v", err)
