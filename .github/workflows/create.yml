@@ -16,20 +16,25 @@ env:
   GH_REPO: repository
 
 jobs:
-  create-card:
+  issue-card:
+    if: github.event_name == 'issues'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v3
         with:
           go-version: 1.18
-      
-      if: ${{ github.event_name == 'issues' }}
         env:
           GH_EVENT: ${{ github.event_name }}
         run: go run cmd/create/main.go
-
-      if: ${{ github.event_name == 'pull_request' }}
+  pull-card:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
+        with:
+          go-version: 1.18
         env:
           GH_EVENT: ${{ github.event_name }}
         run: go run cmd/create/main.go
