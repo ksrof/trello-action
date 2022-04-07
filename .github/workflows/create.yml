@@ -12,8 +12,8 @@ env:
   TRELLO_ID_BOARD: ${{ secrets.TRELLO_ID_BOARD }}
   TRELLO_ID_LIST: ${{ secrets.TRELLO_ID_LIST }}
   GH_TOKEN: ${{ secrets.GH_TOKEN }}
-  GH_USER: username
-  GH_REPO: repository
+  GH_USER: ksrof
+  GH_REPO: trello-action
 
 jobs:
   issue-card:
