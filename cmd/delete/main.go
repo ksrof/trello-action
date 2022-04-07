@@ -26,12 +26,12 @@ func main() {
 			log.Printf("failed to get issue: %v", err)
 		}
 
-		for i := 0; i < len(cards); i++ {
+		for _, card := range cards {
 			issueTitle := fmt.Sprint(issue["title"])
-			cardName := fmt.Sprint(cards[i]["name"])
+			cardName := fmt.Sprint(card["name"])
 
 			if issueTitle == cardName {
-				err = trello.DeleteCard(*env, fmt.Sprint(cards[i]["id"]))
+				err = trello.DeleteCard(*env, fmt.Sprint(card["id"]))
 				if err != nil {
 					log.Printf("failed to delete card: %v", err)
 				}
@@ -45,12 +45,12 @@ func main() {
 			log.Printf("failed to get pull: %v", err)
 		}
 
-		for i := 0; i < len(cards); i++ {
+		for _, card := range cards {
 			pullTitle := fmt.Sprint(pull["title"])
-			cardName := fmt.Sprint(cards[i]["name"])
+			cardName := fmt.Sprint(card["name"])
 
 			if pullTitle == cardName {
-				err = trello.DeleteCard(*env, fmt.Sprint(cards[i]["id"]))
+				err = trello.DeleteCard(*env, fmt.Sprint(card["id"]))
 				if err != nil {
 					log.Printf("failed to delete card: %v", err)
 				}
