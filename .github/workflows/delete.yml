@@ -2,9 +2,9 @@ name: Delete Trello Card
 
 on:
   issues:
-    type: [closed]
+    types: [deleted, closed]
   pull_request:
-    type: [closed]
+    types: [closed]
 
 env:
   TRELLO_KEY: ${{ secrets.TRELLO_KEY }}
@@ -16,32 +16,22 @@ env:
   GH_REPO: repository
 
 jobs:
-  delete_card:
+  delete-card:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@2
-    
-    # Setup
-    - name: Setup Go
-      uses: actions/setup-go@v2
-      with:
-        go-version: 1.18
-    
-    # Check event name
-    if: ${{ github.event_name == 'issues' }}
-    - name: Deleting card...
-      env:
-        GH_EVENT: ${{ github.event_name }}
-        GH_ID: ${{ github.issues.id }}
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
+        with:
+          go-version: 1.18
+      
+      if: ${{ github.event_name == 'issues' }}
+        env:
+          GH_EVENT: ${{ github.event_name }}
+          GH_ID: ${{ github.issues.id }}
+        run: go run cmd/delete/main.go
 
-      # Run
-      run: go run cmd/delete/main.go
-
-    if: ${{ github.event_name == 'pull_request' }}
-    - name: Deleting card...
-      env:
-        GH_EVENT: ${{ github.event_name }}
-        GH_ID: ${{ github.pull_request.id }}
-
-      # Run
-      run: go run cmd/delete/main.go
+      if: ${{ github.event_name == 'pull_request' }}
+        env:
+          GH_EVENT: ${{ github.event_name }}
+          GH_ID: ${{ github.pull_request.id }}
+        run: go run cmd/delete/main.go

@@ -2,9 +2,9 @@ name: Create Trello Card
 
 on:
   issues:
-    type: [opened]
+    types: [opened, reopened]
   pull_request:
-    type: [opened]
+    types: [opened, reopened]
 
 env:
   TRELLO_KEY: ${{ secrets.TRELLO_KEY }}
@@ -16,30 +16,20 @@ env:
   GH_REPO: repository
 
 jobs:
-  create_card:
+  create-card:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
+        with:
+          go-version: 1.18
       
-    # Setup
-    - name: Setup Go
-      uses: actions/setup-go@v2
-      with:
-        go-version: 1.18
-    
-    # Check event name
-    if: ${{ github.event_name == 'issues' }}
-    - name: Creating card...
-      env:
-        GH_EVENT: ${{ github.event_name }}
+      if: ${{ github.event_name == 'issues' }}
+        env:
+          GH_EVENT: ${{ github.event_name }}
+        run: go run cmd/create/main.go
 
-      # Run
-      run: go run cmd/create/main.go
-
-    if: ${{ github.event_name == 'pull_request' }}
-    - name: Creating card...
-      env:
-        GH_EVENT: ${{ github.event_name }}
-
-      # Run
-      run: go run cmd/create/main.go
+      if: ${{ github.event_name == 'pull_request' }}
+        env:
+          GH_EVENT: ${{ github.event_name }}
+        run: go run cmd/create/main.go
