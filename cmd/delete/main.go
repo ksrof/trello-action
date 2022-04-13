@@ -29,12 +29,8 @@ func main() {
 		for _, card := range cards {
 			issueTitle := fmt.Sprint(issue["title"])
 			cardName := fmt.Sprint(card["name"])
-			fmt.Print("Got here...")
-			fmt.Printf("Issue title: %s, Card name: %s", issueTitle, cardName)
 			
 			if issueTitle == cardName {
-				fmt.Print("It matched...")
-				fmt.Printf("Issue title: %s, Card name: %s", issueTitle, cardName)
 				err = trello.DeleteCard(*env, fmt.Sprint(card["id"]))
 				if err != nil {
 					log.Printf("failed to delete card: %v", err)
