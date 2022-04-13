@@ -6,47 +6,46 @@ Cards can be created either when an `issue` or a `pull request` gets `opened` or
 
 ```yml
 on:
- issues:
-  types: [opened, reopened]
- pull_request:
-  types: [opened, reopened]
+  issues:
+    types: [opened, reopened]
+  pull_request:
+    types: [opened, reopened]
 
 env:
- TRELLO_KEY: ${{ secrets.TRELLO_KEY }}
- TRELLO_TOKEN: ${{ secrets.TRELLO_TOKEN }}
- TRELLO_ID_BOARD: ${{ secrets.TRELLO_ID_BOARD }}
- TRELLO_ID_LIST: ${{ secrets.TRELLO_ID_LIST }}
- GH_TOKEN: ${{ secrets.GH_TOKEN }}
- GH_USER: username
- GH_REPO: repository
+  TRELLO_KEY: ${{ secrets.TRELLO_KEY }}
+  TRELLO_TOKEN: ${{ secrets.TRELLO_TOKEN }}
+  TRELLO_ID_BOARD: ${{ secrets.TRELLO_ID_BOARD }}
+  TRELLO_ID_LIST: ${{ secrets.TRELLO_ID_LIST }}
+  GH_TOKEN: ${{ secrets.GH_TOKEN }}
+  GH_USER: username
+  GH_REPO: repository
 
 jobs:
+  issue-card:
+    if: github.event_name == 'issues'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
+        with:
+          go-version: 1.18
+      - run: go run cmd/create/main.go
+        env:
+          GH_EVENT: ${{ github.event_name }}
+          GH_ID: ${{ github.event.issue.number }}
 
- issue-card:
-  if: github.event_name == 'issues'
-  runs-on: ubuntu-latest
-  steps:
-   - uses: actions/checkout@v3
-   - uses: actions/setup-go@v3
-     with:
-      go-version: 1.18
-   - run: go run cmd/create/main.go
-     env:
-      GH_EVENT: ${{ github.event_name }}
-      GH_ID: ${{ github.event.issue.number }}
-
- pull-card:
-  if: github.event_name == 'pull_request'
-  runs-on: ubuntu-latest
-  steps:
-   - uses: actions/checkout@v3
-   - uses: actions/setup-go@v3
-     with:
-      go-version: 1.18
-   - run: go run cmd/create/main.go
-     env:
-      GH_EVENT: ${{ github.event_name }}
-      GH_ID: ${{ github.event.pull_request.number }}
+  pull-card:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
+        with:
+          go-version: 1.18
+      - run: go run cmd/create/main.go
+        env:
+          GH_EVENT: ${{ github.event_name }}
+          GH_ID: ${{ github.event.pull_request.number }}
 ```
 
 In order for the workflow to run appropriately, you need to add the following environment variables to your actions secrets: `TRELLO_KEY`, `TRELLO_TOKEN`, `TRELLO_ID_BOARD`, `TRELLO_ID_LIST` and `GH_TOKEN`.
@@ -56,47 +55,46 @@ Cards can be deleted either when an `issue` or a `pull request` gets `closed`. N
 
 ```yml
 on:
- issues:
-  types: [closed]
- pull_request:
-  types: [closed]
+  issues:
+    types: [closed]
+  pull_request:
+    types: [closed]
 
 env:
- TRELLO_KEY: ${{ secrets.TRELLO_KEY }}
- TRELLO_TOKEN: ${{ secrets.TRELLO_TOKEN }}
- TRELLO_ID_BOARD: ${{ secrets.TRELLO_ID_BOARD }}
- TRELLO_ID_LIST: ${{ secrets.TRELLO_ID_LIST }}
- GH_TOKEN: ${{ secrets.GH_TOKEN }}
- GH_USER: username
- GH_REPO: repository
+  TRELLO_KEY: ${{ secrets.TRELLO_KEY }}
+  TRELLO_TOKEN: ${{ secrets.TRELLO_TOKEN }}
+  TRELLO_ID_BOARD: ${{ secrets.TRELLO_ID_BOARD }}
+  TRELLO_ID_LIST: ${{ secrets.TRELLO_ID_LIST }}
+  GH_TOKEN: ${{ secrets.GH_TOKEN }}
+  GH_USER: username
+  GH_REPO: repository
 
 jobs:
+  issue-card:
+    if: github.event_name == 'issues'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
+        with:
+          go-version: 1.18
+      - run: go run cmd/delete/main.go
+        env:
+          GH_EVENT: ${{ github.event_name }}
+          GH_ID: ${{ github.event.issue.number }}
 
- issue-card:
-  if: github.event_name == 'issues'
-  runs-on: ubuntu-latest
-  steps:
-   - uses: actions/checkout@v3
-   - uses: actions/setup-go@v3
-     with:
-      go-version: 1.18
-   - run: go run cmd/delete/main.go
-     env:
-      GH_EVENT: ${{ github.event_name }}
-      GH_ID: ${{ github.event.issue.number }}
-
- pull-card:
-  if: github.event_name == 'pull_request'
-  runs-on: ubuntu-latest
-  steps:
-   - uses: actions/checkout@v3
-   - uses: actions/setup-go@v3
-     with:
-      go-version: 1.18
-   - run: go run cmd/delete/main.go
-     env:
-      GH_EVENT: ${{ github.event_name }}
-      GH_ID: ${{ github.event.pull_request.number }}
+  pull-card:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
+        with:
+          go-version: 1.18
+      - run: go run cmd/delete/main.go
+        env:
+          GH_EVENT: ${{ github.event_name }}
+          GH_ID: ${{ github.event.pull_request.number }}
 ```
 
 ## Updating a card
@@ -104,47 +102,46 @@ Cards can be updated either when an `issue` or a `pull request` gets `labeled`. 
 
 ```yml
 on:
- issues:
-  types: [labeled]
- pull_request:
-  types: [labeled]
+  issues:
+    types: [labeled]
+  pull_request:
+    types: [labeled]
 
 env:
- TRELLO_KEY: ${{ secrets.TRELLO_KEY }}
- TRELLO_TOKEN: ${{ secrets.TRELLO_TOKEN }}
- TRELLO_ID_BOARD: ${{ secrets.TRELLO_ID_BOARD }}
- TRELLO_ID_LIST: ${{ secrets.TRELLO_ID_LIST }}
- GH_TOKEN: ${{ secrets.GH_TOKEN }}
- GH_USER: username
- GH_REPO: repository
+  TRELLO_KEY: ${{ secrets.TRELLO_KEY }}
+  TRELLO_TOKEN: ${{ secrets.TRELLO_TOKEN }}
+  TRELLO_ID_BOARD: ${{ secrets.TRELLO_ID_BOARD }}
+  TRELLO_ID_LIST: ${{ secrets.TRELLO_ID_LIST }}
+  GH_TOKEN: ${{ secrets.GH_TOKEN }}
+  GH_USER: username
+  GH_REPO: repository
 
 jobs:
+  issue-card:
+    if: github.event_name == 'issues'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
+        with:
+          go-version: 1.18
+      - run: go run cmd/update/main.go
+        env:
+          GH_EVENT: ${{ github.event_name }}
+          GH_ID: ${{ github.event.issue.number }}
 
- issue-card:
-  if: github.event_name == 'issues'
-  runs-on: ubuntu-latest
-  steps:
-   - uses: actions/checkout@v3
-   - uses: actions/setup-go@v3
-     with:
-      go-version: 1.18
-   - run: go run cmd/update/main.go
-     env:
-      GH_EVENT: ${{ github.event_name }}
-      GH_ID: ${{ github.event.issue.number }}
-
- pull-card:
-  if: github.event_name == 'pull_request'
-  runs-on: ubuntu-latest
-  steps:
-   - uses: actions/checkout@v3
-   - uses: actions/setup-go@v3
-     with:
-      go-version: 1.18
-   - run: go run cmd/update/main.go
-     env:
-      GH_EVENT: ${{ github.event_name }}
-      GH_ID: ${{ github.event.pull_request.number }}
+  pull-card:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
+        with:
+          go-version: 1.18
+      - run: go run cmd/update/main.go
+        env:
+          GH_EVENT: ${{ github.event_name }}
+          GH_ID: ${{ github.event.pull_request.number }}
 ```
 
 ## Contact
