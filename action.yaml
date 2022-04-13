@@ -1,4 +1,5 @@
 name: Trello Action by Ksrof
+description: Easily automate the process of creating, moving and deleting Trello Cards harnessing the power of Github Actions.
 
 on:
   issues:
