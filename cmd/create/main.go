@@ -3,93 +3,45 @@ package main
 import (
 	"fmt"
 	"log"
-	"net/http"
-	"strconv"
-	"strings"
 
-	"github.com/ksrof/gha-trello/github"
-	"github.com/ksrof/gha-trello/internal"
-	"github.com/ksrof/gha-trello/models"
+	"github.com/ksrof/trello-action/internal/configs"
+	"github.com/ksrof/trello-action/internal/github"
+	"github.com/ksrof/trello-action/internal/trello"
 )
 
-// Trello API card URL
-var cardURL string = "https://api.trello.com/1/cards"
-
-// create performs a POST request to api.trello.com/1/cards.
-// It creates a new card on a trello board with the data provided by a new Issue or PR got from Github.
-func create(env models.Env) error {
-	newReq, err := internal.NewReq("POST", cardURL, nil)
-	if err != nil {
-		return fmt.Errorf("failed to build new http request: %v", err)
-	}
-
-	switch strings.ToLower(env.Action) {
-	case "issue":
-		issue, err := github.GetIssues(env.GithubToken, env.GithubUser, env.GithubRepo)
-		if err != nil {
-			return fmt.Errorf("failed to get issues: %v", err)
-		}
-
-		params := models.Params{
-			IDList: env.TrelloIDList,
-			Key:    env.TrelloKey,
-			Token:  env.TrelloToken,
-			Title:  issue[0].Title,
-			Number: strconv.Itoa(issue[0].Number),
-			URL:    issue[0].HTMLURL,
-		}
-
-		req, err := internal.Params(params, newReq)
-		if err != nil {
-			return fmt.Errorf("failed to set query parameters: %v", err)
-		}
-
-		_, err = http.DefaultClient.Do(req)
-		if err != nil {
-			return fmt.Errorf("failed to send POST request to the server: %v", err)
-		}
-	case "pull":
-		pull, err := github.GetPulls(env.GithubToken, env.GithubUser, env.GithubRepo)
-		if err != nil {
-			return fmt.Errorf("failed to get pulls: %v", err)
-		}
-
-		params := models.Params{
-			IDList: env.TrelloIDList,
-			Key:    env.TrelloKey,
-			Token:  env.TrelloToken,
-			Title:  pull[0].Title,
-			Number: strconv.Itoa(pull[0].Number),
-			URL:    pull[0].HTMLURL,
-		}
-
-		req, err := internal.Params(params, newReq)
-		if err != nil {
-			return fmt.Errorf("failed to set query parameters: %v", err)
-		}
-
-		_, err = http.DefaultClient.Do(req)
-		if err != nil {
-			return fmt.Errorf("failed to send POST request to the server: %v", err)
-		}
-
-		_, err = http.DefaultClient.Do(req)
-		if err != nil {
-			return fmt.Errorf("failed to send POST request to the server: %v", err)
-		}
-	}
-
-	return nil
-}
-
 func main() {
-	env, err := internal.Env()
+	env, err := configs.Environment()
 	if err != nil {
-		log.Fatalf("failed to get environment variables: %v", err)
+		log.Fatalf("failed to load environment: %v", err)
 	}
 
-	err = create(env)
-	if err != nil {
-		log.Fatalf("failed to create new trello card: %v", err)
+	if env.Github.Event == "issues" {
+		issue, err := github.GetIssue(*env)
+		if err != nil {
+			log.Printf("failed to get issue: %v", err)
+		}
+
+		issueTitle := fmt.Sprint(issue["title"])
+		issueURL := fmt.Sprint(issue["html_url"])
+
+		err = trello.CreateCard(*env, issueTitle, issueURL)
+		if err != nil {
+			log.Printf("failed to create card: %v", err)
+		}
+	}
+
+	if env.Github.Event == "pull_request" {
+		pull, err := github.GetPull(*env)
+		if err != nil {
+			log.Printf("failed to get pull: %v", err)
+		}
+
+		pullTitle := fmt.Sprint(pull["title"])
+		pullURL := fmt.Sprint(pull["html_url"])
+
+		err = trello.CreateCard(*env, pullTitle, pullURL)
+		if err != nil {
+			log.Printf("failed to create card: %v", err)
+		}
 	}
 }

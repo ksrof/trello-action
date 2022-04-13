@@ -3,9 +3,28 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
-## [Unreleased]
+## [release.r3](https://github.com/ksrof/trello-action/releases/tag/release.r3) - 2022-04-13
+### Added
+- URL parser
+- Regexp validator for Github Personal Access Token
+- Get specific issue or pull_request by user, repo and id
+- Create Trello Card based on an event type
+- Create Trello Card with Title and URL from issue or pull_request
+- Vendor dependencies
+- Delete Trello Card based on an id
+- Get all cards from a specific Trello Board
+- Get all labels from a specific issue or pull_request
+- Get all lists from a specific Trello Board
+- Update Trello Card based on an event type
+- Add action.yml
+### Changed
+- Renamed files, go module, variables and fixed typos
+- Renamed go module
+- Add examples to the README.md
+### Removed
+- Removed .github/workflows folder
 
-## [release-branch.r2] - 2022-03-12
+## [release-branch.r2](https://github.com/ksrof/trello-action/releases/tag/release.r2) - 2022-03-12
 ### Added
 - Create card from issue or pr
 - Created different yml files for different actions
@@ -30,7 +49,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Removed main.go
 - Removed utils folder
 
-## [release-branch.r1] - 2022-02-25
+## [release-branch.r1](https://github.com/ksrof/trello-action/releases/tag/pre-release.r1) - 2022-02-25
 ### Added
 - Added .yaml and .env to .gitignore
 - Added github.com/spf13/viper
