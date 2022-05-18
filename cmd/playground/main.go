@@ -1,35 +1,22 @@
 package main
 
 import (
-	"fmt"
 	"log"
-	"net/http"
 
-	config "github.com/ksrof/trello-action"
+	"github.com/ksrof/trello-action/external/github"
 )
 
 func main() {
-	config, err := config.NewConfig(
-		config.WithMethods(
-			http.MethodGet,
-			http.MethodPost,
-			http.MethodPut,
-		),
-		config.WithPaths(
-			"https://api.trello.com/v1",
-		),
-		config.WithParams(
-			map[string]string{
-				"key":     "the-key",
-				"token":   "the-token",
-				"idBoard": "the-id-board",
-				"idList":  "the-id-list",
-			},
-		),
+	client, err := github.New(
+		github.WithToken("dGhpc2lzYXN1cGVyc2VjcmV0dG9rZW4="),
+		github.WithUser("ksrof"),
+		github.WithRepo("trello-action"),
+		github.WithEvent("issue"),
+		github.WithID("13"),
 	)
 	if err != nil {
-		log.Fatalf("failed to initialize a new configuration object: %v\n", err)
+		log.Fatalln(err)
 	}
 
-	fmt.Println(config)
+	_ = client.GetIssueByID()
 }
