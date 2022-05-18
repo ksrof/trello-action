@@ -1,47 +1,25 @@
 package main
 
 import (
-	"fmt"
 	"log"
+	"os"
 
-	"github.com/ksrof/trello-action/internal/configs"
-	"github.com/ksrof/trello-action/internal/github"
-	"github.com/ksrof/trello-action/internal/trello"
+	"github.com/ksrof/trello-action/external/github"
 )
 
 func main() {
-	env, err := configs.Environment()
+	github, err := github.New(
+		github.WithToken(os.Getenv("GH_TOKEN")),
+		github.WithUser(os.Getenv("GH_USER")),
+		github.WithRepo(os.Getenv("GH_REPO")),
+		github.WithEvent(os.Getenv("GH_EVENT")),
+		github.WithID(os.Getenv("GITHUB_ID")),
+	)
 	if err != nil {
-		log.Fatalf("failed to load environment: %v", err)
+		log.Fatalln(err)
 	}
 
-	if env.Github.Event == "issues" {
-		issue, err := github.GetIssue(*env)
-		if err != nil {
-			log.Printf("failed to get issue: %v", err)
-		}
-
-		issueTitle := fmt.Sprint(issue["title"])
-		issueURL := fmt.Sprint(issue["html_url"])
-
-		err = trello.CreateCard(*env, issueTitle, issueURL)
-		if err != nil {
-			log.Printf("failed to create card: %v", err)
-		}
-	}
-
-	if env.Github.Event == "pull_request" {
-		pull, err := github.GetPull(*env)
-		if err != nil {
-			log.Printf("failed to get pull: %v", err)
-		}
-
-		pullTitle := fmt.Sprint(pull["title"])
-		pullURL := fmt.Sprint(pull["html_url"])
-
-		err = trello.CreateCard(*env, pullTitle, pullURL)
-		if err != nil {
-			log.Printf("failed to create card: %v", err)
-		}
-	}
+	_ = github.GetIssueByID()
+	_ = github.GetPullByID()
+	_ = github.GetLabelsFromIssue()
 }
