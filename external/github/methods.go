@@ -1,29 +1,21 @@
 package github
 
-import (
-	"fmt"
-	"net/http"
-)
-
 type Requester interface {
-	GetIssueByID() *http.Response
-	GetPullByID() *http.Response
-	GetLabelsFromIssue() *http.Response
+	GetIssueByID() (interface{}, error)
+	GetPullByID() (interface{}, error)
+	GetLabelsFromIssue() (interface{}, error)
 }
 
-func (c *config) GetIssueByID() *http.Response {
-	fmt.Println(c.token)
-	fmt.Println(c.user)
-	fmt.Println(c.repo)
-	fmt.Println(c.event)
-	fmt.Println(c.id)
-	return nil
+// TODO: Decode http.Response in a separated function.
+
+func (c *config) GetIssueByID() (interface{}, error) {
+	return nil, nil
 }
 
-func (c *config) GetPullByID() *http.Response {
-	return nil
+func (c *config) GetPullByID() (interface{}, error) {
+	return nil, nil
 }
 
-func (c *config) GetLabelsFromIssue() *http.Response {
-	return nil
+func (c *config) GetLabelsFromIssue() (interface{}, error) {
+	return nil, nil
 }

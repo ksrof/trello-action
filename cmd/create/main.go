@@ -19,7 +19,7 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	_ = github.GetIssueByID()
-	_ = github.GetPullByID()
-	_ = github.GetLabelsFromIssue()
+	_, _ = github.GetIssueByID()
+	_, _ = github.GetPullByID()
+	_, _ = github.GetLabelsFromIssue()
 }
