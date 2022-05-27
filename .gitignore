@@ -1,6 +1,4 @@
 # Configuration files
-env.yml
-env.yaml
 *.env
 
 # Binaries for programs and plugins
