@@ -2,27 +2,42 @@ package github
 
 import (
 	"errors"
-	"fmt"
-	"os"
 	"regexp"
 	"strings"
 )
 
-type options func(c *client) error
+var (
+	minUserLength   int   = 4
+	ErrEmptyOptions error = errors.New("no options provided")
+	ErrEmptyHost    error = errors.New("no host provided")
+	ErrEmptyUser    error = errors.New("no user provided")
+	ErrEmptyRepo    error = errors.New("no repo provided")
+	ErrEmptyEvent   error = errors.New("no event provided")
+	ErrEmptyID      error = errors.New("no id provided")
+	ErrInvalidHost  error = errors.New("invalid host provided")
+	ErrInvalidUser  error = errors.New("invalid user provided")
+	ErrInvalidEvent error = errors.New("invalid event provided")
+	ErrInvalidID    error = errors.New("invalid id provided")
+)
 
-type client struct {
-	host  string
-	token string
-	user  string
-	repo  string
-	event string
-	id    string
+type Options func(c *Client) error
+
+type Client struct {
+	Host  string
+	User  string
+	Repo  string
+	Event string
+	ID    string
 }
 
-func NewClient(opts ...options) (*client, error) {
-	c := &client{}
+func NewClient(opts ...Options) (*Client, error) {
+	c := &Client{}
 
-	for _, opt := range append(defaultOpts(), opts...) {
+	if len(opts) == 0 {
+		return nil, ErrEmptyOptions
+	}
+
+	for _, opt := range opts {
 		err := opt(c)
 		if err != nil {
 			return nil, err
@@ -32,101 +47,127 @@ func NewClient(opts ...options) (*client, error) {
 	return c, nil
 }
 
-func defaultOpts() []options {
-	return []options{
-		WithHost("https://api.github.com/"),
-		WithToken(os.Getenv("GH_TOKEN")),
-		WithUser(os.Getenv("GH_USERNAME")),
-		WithRepo(os.Getenv("GH_REPOSITORY")),
-		WithEvent(os.Getenv("GH_EVENT_TYPE")),
-		WithID(os.Getenv("GH_EVENT_ID")),
+func WithHost(host string) Options {
+	return func(c *Client) error {
+		err := checkHost(host)
+		if err != nil {
+			return err
+		}
+
+		c.Host = host
+		return nil
 	}
 }
 
-func checkTokenValidity(token string) error {
-	ok, err := regexp.MatchString("[A-Za-z0-9_]{40}", token) // gh personal access token regexp
-	if err != nil {
-		return err
+func WithUser(user string) Options {
+	return func(c *Client) error {
+		err := checkUser(user)
+		if err != nil {
+			return err
+		}
+
+		c.User = user
+		return nil
+	}
+}
+
+func WithRepo(repo string) Options {
+	return func(c *Client) error {
+		err := checkRepo(repo)
+		if err != nil {
+			return err
+		}
+
+		c.Repo = repo
+		return nil
+	}
+}
+
+func WithEvent(event string) Options {
+	return func(c *Client) error {
+		err := checkEvent(event)
+		if err != nil {
+			return err
+		}
+
+		c.Event = event
+		return nil
+	}
+}
+
+func WithID(id string) Options {
+	return func(c *Client) error {
+		err := checkID(id)
+		if err != nil {
+			return err
+		}
+
+		c.ID = id
+		return nil
+	}
+}
+
+func checkHost(host string) error {
+	if strings.TrimSpace(host) == "" {
+		return ErrEmptyHost
 	}
 
+	if !strings.Contains(host, "api.github.com") {
+		return ErrInvalidHost
+	}
+
+	return nil
+}
+
+func checkUser(user string) error {
+	if strings.TrimSpace(user) == "" {
+		return ErrEmptyUser
+	}
+
+	if len(strings.TrimSpace(user)) < minUserLength {
+		return ErrInvalidUser
+	}
+
+	return nil
+}
+
+func checkRepo(repo string) error {
+	if strings.TrimSpace(repo) == "" {
+		return ErrEmptyRepo
+	}
+
+	return nil
+}
+
+func checkEvent(event string) error {
+	events := []string{
+		"issues",
+		"pull_request",
+	}
+
+	if strings.TrimSpace(event) == "" {
+		return ErrEmptyEvent
+	}
+
+	for _, evt := range events {
+		if evt != event {
+			return ErrInvalidEvent
+		}
+	}
+
+	return nil
+}
+
+func checkID(id string) error {
+	if strings.TrimSpace(id) == "" {
+		return ErrEmptyID
+	}
+
+	pattern := regexp.MustCompile("^[0-9]+$")
+	ok := pattern.MatchString(id)
 	if !ok {
-		return fmt.Errorf("%w", errors.New("invalid token"))
+		return ErrInvalidID
 	}
 
 	return nil
-}
-
-func checkEmptyString(str string) error {
-	if strings.TrimSpace(str) == "" {
-		return fmt.Errorf("%w", errors.New("invalid repo"))
-	}
-
-	return nil
-}
-
-func WithHost(host string) options {
-	return func(c *client) error {
-		c.host = host
-		return nil
-	}
-}
-
-func WithToken(token string) options {
-	return func(c *client) error {
-		err := checkTokenValidity(token)
-		if err != nil {
-			return err
-		}
-
-		c.token = token
-		return nil
-	}
-}
-
-func WithUser(user string) options {
-	return func(c *client) error {
-		err := checkEmptyString(user)
-		if err != nil {
-			return err
-		}
-
-		c.user = user
-		return nil
-	}
-}
-
-func WithRepo(repo string) options {
-	return func(c *client) error {
-		err := checkEmptyString(repo)
-		if err != nil {
-			return err
-		}
-
-		c.repo = repo
-		return nil
-	}
-}
-
-func WithEvent(event string) options {
-	return func(c *client) error {
-		err := checkEmptyString(event)
-		if err != nil {
-			return err
-		}
-
-		c.event = event
-		return nil
-	}
-}
-
-func WithID(id string) options {
-	return func(c *client) error {
-		err := checkEmptyString(id)
-		if err != nil {
-			return err
-		}
-
-		c.id = id
-		return nil
-	}
 }
