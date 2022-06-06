@@ -1,202 +1,129 @@
-package github
+package github_test
 
 import (
+	"context"
 	"net/http"
 	"testing"
+
+	"github.com/ksrof/trello-action/external/github"
 )
 
-func TestService_GetIssueByID(t *testing.T) {
-	type args struct {
-		opts []string
+func TestGetIssueByID(t *testing.T) {
+	setTestEnv(t)
+
+	want := http.StatusOK
+
+	client, err := github.NewClient()
+	if err != nil {
+		t.Logf("received error (%v)", err)
+		t.Fail()
 	}
 
-	tests := []struct {
-		name string
-		args args
-		want int
-		err  error
-	}{
-		{
-			name: "Test get issue by ID",
-			args: args{
-				opts: []string{"opt1", "opt2", "opt3"},
-			},
-			want: http.StatusOK,
-			err:  nil,
-		},
-		{
-			name: "Test get issue by ID not found",
-			args: args{
-				opts: []string{"opt1", "opt2", "opt3"},
-			},
-			want: http.StatusNotFound,
-			err:  errResourceNotFound,
-		},
-		{
-			name: "Test get issue by ID gone",
-			args: args{
-				opts: []string{"opt1", "opt2", "opt3"},
-			},
-			want: http.StatusGone,
-			err:  errGone,
-		},
+	res, err := client.GetIssueByID(context.TODO())
+	if err != nil {
+		switch err {
+		case github.ErrCreatingNewRequest:
+			t.Logf("expected error (%v), received error (%v)", github.ErrCreatingNewRequest, err)
+			t.Fail()
+		case github.ErrDoingRequest:
+			t.Logf("expected error (%v), received error (%v)", github.ErrDoingRequest, err)
+			t.Fail()
+		default:
+			t.Logf("received error (%v)", err)
+			t.Fail()
+		}
 	}
 
-	for _, test := range tests {
-		client, _ := NewAPIClient(
-			WithHost("https://api.github.com/"),
-			WithUser("ksrof"),
-			WithRepo("trello-action-test"),
-			WithEvent("issues"),
-			WithID("12"),
-		)
-
-		got, err := client.GetIssueByID()
-		if err != nil {
-			t.Logf("Name: %s, want (%v), got (%v)", test.name, test.want, got.StatusCode)
-			t.Logf("Name: %s, want (%v), got (%v)", test.name, test.err, err)
-			assert.Equal(t, test.want, got.StatusCode)
-			assert.Equal(t, test.err, err)
-			return
+	if res != nil {
+		switch res.StatusCode {
+		case http.StatusOK:
+			t.Logf("expected code (%v), received code (%v)", want, res.StatusCode)
+		case http.StatusNotFound:
+			t.Logf("expected code (%v), received code (%v)", want, res.StatusCode)
+			t.Fail()
+		case http.StatusGone:
+			t.Logf("expected code (%v), received code (%v)", want, res.StatusCode)
+			t.Fail()
 		}
-
-		if err == nil {
-			t.Logf("Name: %s, want (%v), got (%v)", test.name, test.want, got.StatusCode)
-			t.Logf("Name: %s, want (%v), got (%v)", test.name, test.err, err)
-			assert.Equal(t, test.want, got.StatusCode)
-			assert.Equal(t, test.err, err)
-			return
-		}
-
-		t.Errorf("Name: %s, want (%v), got (%v)", test.name, test.want, got.StatusCode)
-		t.Errorf("Name: %s, want (%v), got (%v)", test.name, test.err, err)
 	}
 }
 
-func TestService_GetPullByID(t *testing.T) {
-	type args struct {
-		opts []string
+func TestGetPullByID(t *testing.T) {
+	setTestEnv(t)
+
+	want := http.StatusOK
+
+	client, err := github.NewClient(
+		github.WithEvent("pulls"),
+		github.WithID("7"),
+	)
+	if err != nil {
+		t.Logf("received error (%v)", err)
+		t.Fail()
 	}
 
-	tests := []struct {
-		name string
-		args args
-		want int
-		err  error
-	}{
-		{
-			name: "Test get pull by ID",
-			args: args{
-				opts: []string{"opt1", "opt2", "opt3"},
-			},
-			want: http.StatusOK,
-			err:  nil,
-		},
-		{
-			name: "Test get pull by ID not found",
-			args: args{
-				opts: []string{"opt1", "opt2", "opt3"},
-			},
-			want: http.StatusNotFound,
-			err:  errResourceNotFound,
-		},
-		{
-			name: "Test get pull by ID internal error",
-			args: args{
-				opts: []string{"opt1", "opt2", "opt3"},
-			},
-			want: http.StatusInternalServerError,
-			err:  errInternalError,
-		},
+	res, err := client.GetIssueByID(context.TODO())
+	if err != nil {
+		switch err {
+		case github.ErrCreatingNewRequest:
+			t.Logf("expected error (%v), received error (%v)", github.ErrCreatingNewRequest, err)
+			t.Fail()
+		case github.ErrDoingRequest:
+			t.Logf("expected error (%v), received error (%v)", github.ErrDoingRequest, err)
+			t.Fail()
+		default:
+			t.Logf("received error (%v)", err)
+			t.Fail()
+		}
 	}
 
-	for _, test := range tests {
-		client, _ := NewAPIClient(
-			WithHost("https://api.github.com/"),
-			WithUser("ksrof"),
-			WithRepo("trello-action-test"),
-			WithEvent("issues"),
-			WithID("12"),
-		)
-
-		got, err := client.GetPullByID()
-		if err != nil {
-			t.Logf("Name: %s, want (%v), got (%v)", test.name, test.want, got.StatusCode)
-			t.Logf("Name: %s, want (%v), got (%v)", test.name, test.err, err)
-			assert.Equal(t, test.want, got.StatusCode)
-			assert.Equal(t, test.err, err)
-			return
+	if res != nil {
+		switch res.StatusCode {
+		case http.StatusOK:
+			t.Logf("expected code (%v), received code (%v)", want, res.StatusCode)
+		case http.StatusNotFound:
+			t.Logf("expected code (%v), received code (%v)", want, res.StatusCode)
+			t.Fail()
+		case http.StatusInternalServerError:
+			t.Logf("expected code (%v), received code (%v)", want, res.StatusCode)
+			t.Fail()
 		}
-
-		if err == nil {
-			t.Logf("Name: %s, want (%v), got (%v)", test.name, test.want, got.StatusCode)
-			t.Logf("Name: %s, want (%v), got (%v)", test.name, test.err, err)
-			assert.Equal(t, test.want, got.StatusCode)
-			assert.Equal(t, test.err, err)
-			return
-		}
-
-		t.Errorf("Name: %s, want (%v), got (%v)", test.name, test.want, got.StatusCode)
-		t.Errorf("Name: %s, want (%v), got (%v)", test.name, test.err, err)
 	}
 }
 
-func TestService_GetLabelsFromIssue(t *testing.T) {
-	type args struct {
-		opts []string
+func TestGetLabelsFromIssue(t *testing.T) {
+	setTestEnv(t)
+
+	want := http.StatusOK
+
+	client, err := github.NewClient()
+	if err != nil {
+		t.Logf("received error (%v)", err)
+		t.Fail()
 	}
 
-	tests := []struct {
-		name string
-		args args
-		want int
-		err  error
-	}{
-		{
-			name: "Test get labels from issue",
-			args: args{
-				opts: []string{"opt1", "opt2", "opt3"},
-			},
-			want: http.StatusOK,
-			err:  nil,
-		},
-		{
-			name: "Test get labels from issue gone",
-			args: args{
-				opts: []string{"opt1", "opt2", "opt3"},
-			},
-			want: http.StatusGone,
-			err:  errGone,
-		},
+	res, err := client.GetIssueByID(context.TODO())
+	if err != nil {
+		switch err {
+		case github.ErrCreatingNewRequest:
+			t.Logf("expected error (%v), received error (%v)", github.ErrCreatingNewRequest, err)
+			t.Fail()
+		case github.ErrDoingRequest:
+			t.Logf("expected error (%v), received error (%v)", github.ErrDoingRequest, err)
+			t.Fail()
+		default:
+			t.Logf("received error (%v)", err)
+			t.Fail()
+		}
 	}
 
-	for _, test := range tests {
-		client, _ := NewAPIClient(
-			WithHost("https://api.github.com/"),
-			WithUser("ksrof"),
-			WithRepo("trello-action-test"),
-			WithEvent("issues"),
-			WithID("12"),
-		)
-
-		got, err := client.GetPullByID()
-		if err != nil {
-			t.Logf("Name: %s, want (%v), got (%v)", test.name, test.want, got.StatusCode)
-			t.Logf("Name: %s, want (%v), got (%v)", test.name, test.err, err)
-			assert.Equal(t, test.want, got.StatusCode)
-			assert.Equal(t, test.err, err)
-			return
+	if res != nil {
+		switch res.StatusCode {
+		case http.StatusOK:
+			t.Logf("expected code (%v), received code (%v)", want, res.StatusCode)
+		case http.StatusGone:
+			t.Logf("expected code (%v), received code (%v)", want, res.StatusCode)
+			t.Fail()
 		}
-
-		if err == nil {
-			t.Logf("Name: %s, want (%v), got (%v)", test.name, test.want, got.StatusCode)
-			t.Logf("Name: %s, want (%v), got (%v)", test.name, test.err, err)
-			assert.Equal(t, test.want, got.StatusCode)
-			assert.Equal(t, test.err, err)
-			return
-		}
-
-		t.Errorf("Name: %s, want (%v), got (%v)", test.name, test.want, got.StatusCode)
-		t.Errorf("Name: %s, want (%v), got (%v)", test.name, test.err, err)
 	}
 }

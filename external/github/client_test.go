@@ -1,322 +1,213 @@
-package github
+package github_test
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/ksrof/trello-action/external/github"
+)
+
+func setTestEnv(t *testing.T) {
+	t.Setenv("GH_TOKEN", "xxx")
+	t.Setenv("GH_USER", "ksrof")
+	t.Setenv("GH_REPO", "trello-action-test")
+	t.Setenv("GH_EVENT", "issues")
+	t.Setenv("GH_ID", "2")
+}
 
 func TestNewClient(t *testing.T) {
-	type args struct {
-		opts []string
+	setTestEnv(t)
+
+	client, err := github.NewClient()
+	if err != nil {
+		switch err {
+		case github.ErrEmptyString:
+			t.Logf("expected error (%v), received error (%v)", github.ErrEmptyString, err)
+			t.Fail()
+		case github.ErrInvalidToken:
+			t.Logf("expected error (%v), received error (%v)", github.ErrInvalidToken, err)
+			t.Fail()
+		case github.ErrInvalidUser:
+			t.Logf("expected error (%v), received error (%v)", github.ErrInvalidUser, err)
+			t.Fail()
+		case github.ErrInvalidEvent:
+			t.Logf("expected error (%v), received error (%v)", github.ErrInvalidEvent, err)
+			t.Fail()
+		case github.ErrInvalidID:
+			t.Logf("expected error (%v), received error (%v)", github.ErrInvalidID, err)
+			t.Fail()
+		default:
+			t.Logf("received error (%v)", err)
+			t.Fail()
+		}
 	}
 
-	tests := []struct {
-		name string
-		args args
-		want struct{}
-		err  error
-	}{
-		{
-			name: "Test new client",
-			args: args{
-				opts: []string{"op1", "op2", "op3"},
-			},
-			want: struct{}{},
-			err:  nil,
-		},
-		{
-			name: "Test new client with empty options",
-			args: args{
-				opts: []string{},
-			},
-			err: errEmptyOptions,
-		},
-	}
-
-	for _, test := range tests {
-		got, err := NewAPIClient(test.args.opts)
-		if err != nil {
-			t.Logf("Name: %s, want (%v), got (%v)", test.name, test.err, err)
-			assert.Equal(t, test.err, err)
-			return
-		}
-
-		if err == nil {
-			t.Logf("Name: %s, want (%v), got (%v)", test.name, test.want, got)
-			assert.Equal(t, test.want, got)
-			return
-		}
-
-		t.Errorf("Name: %s, want (%v), got (%v)", test.name, test.err, err)
-		t.Errorf("Name: %s, want (%v), got (%v)", test.name, test.want, got)
+	if err == nil {
+		t.Logf("received client (%v)", client)
 	}
 }
 
-func TestNewClient_WithHost(t *testing.T) {
-	type args struct {
-		opts []string
-	}
+func TestWithInvalidToken(t *testing.T) {
+	setTestEnv(t)
 
 	tests := []struct {
-		name string
-		args args
-		want struct{}
-		err  error
+		token   string
+		wantErr error
 	}{
-		{
-			name: "Test new client with host",
-			args: args{
-				opts: []string{"opt1"},
-			},
-			want: struct{}{},
-			err:  nil,
-		},
-		{
-			name: "Test new client with empty host",
-			args: args{
-				opts: []string{"opt1"},
-			},
-			want: struct{}{},
-			err:  errEmptyHost,
-		},
-		{
-			name: "Test new client with invalid host",
-			args: args{
-				opts: []string{"opt1"},
-			},
-			want: struct{}{},
-			err:  errInvalidHost,
-		},
+		{token: "", wantErr: github.ErrEmptyString},
+		{token: "abc123", wantErr: github.ErrInvalidToken},
 	}
 
 	for _, test := range tests {
-		got, err := NewAPIClient(test.args.opts)
+		_, err := github.NewClient(
+			github.WithToken(test.token),
+		)
+
 		if err != nil {
-			t.Logf("Name: %s, want (%v), got (%v)", test.name, test.err, err)
-			assert.Equal(t, test.err, err)
-			return
+			switch err {
+			case github.ErrEmptyString:
+				t.Logf("expected error (%v), received error (%v)", test.wantErr, err)
+			case github.ErrInvalidToken:
+				t.Logf("expected error (%v), received error (%v)", test.wantErr, err)
+			default:
+				t.Logf("received error (%v)", err)
+				t.Fail()
+			}
 		}
 
 		if err == nil {
-			t.Logf("Name: %s, want (%v), got (%v)", test.name, test.want, got)
-			assert.Equal(t, test.want, got)
-			return
+			t.Logf("expected error (%v), received error (%v)", test.wantErr, err)
+			t.Fail()
 		}
-
-		t.Errorf("Name: %s, want (%v), got (%v)", test.name, test.err, err)
-		t.Errorf("Name: %s, want (%v), got (%v)", test.name, test.want, got)
 	}
 }
 
-func TestNewClient_WithUser(t *testing.T) {
-	type args struct {
-		opts []string
-	}
+func TestWithInvalidUser(t *testing.T) {
+	setTestEnv(t)
 
 	tests := []struct {
-		name string
-		args args
-		want struct{}
-		err  error
+		user    string
+		wantErr error
 	}{
-		{
-			name: "Test new client with user",
-			args: args{
-				opts: []string{"opt2"},
-			},
-			want: struct{}{},
-			err:  nil,
-		},
-		{
-			name: "Test new client with empty user",
-			args: args{
-				opts: []string{"opt2"},
-			},
-			want: struct{}{},
-			err:  errEmptyUser,
-		},
-		{
-			name: "Test new client with invalid user",
-			args: args{
-				opts: []string{"opt2"},
-			},
-			want: struct{}{},
-			err:  errInvalidUser,
-		},
+		{user: "", wantErr: github.ErrEmptyString},
+		{user: "ksr", wantErr: github.ErrInvalidUser},
 	}
 
 	for _, test := range tests {
-		got, err := NewAPIClient(test.args.opts)
+		_, err := github.NewClient(
+			github.WithUser(test.user),
+		)
+
 		if err != nil {
-			t.Logf("Name: %s, want (%v), got (%v)", test.name, test.err, err)
-			assert.Equal(t, test.err, err)
-			return
+			switch err {
+			case github.ErrEmptyString:
+				t.Logf("expected error (%v), received error (%v)", test.wantErr, err)
+			case github.ErrInvalidUser:
+				t.Logf("expected error (%v), received error (%v)", test.wantErr, err)
+			default:
+				t.Logf("received error (%v)", err)
+				t.Fail()
+			}
 		}
 
 		if err == nil {
-			t.Logf("Name: %s, want (%v), got (%v)", test.name, test.want, got)
-			assert.Equal(t, test.want, got)
-			return
+			t.Logf("expected error (%v) received error (%v)", test.wantErr, err)
+			t.Fail()
 		}
-
-		t.Errorf("Name: %s, want (%v), got (%v)", test.name, test.err, err)
-		t.Errorf("Name: %s, want (%v), got (%v)", test.name, test.want, got)
 	}
 }
 
-func TestNewClient_WithRepo(t *testing.T) {
-	type args struct {
-		opts []string
-	}
+func TestWithInvalidRepo(t *testing.T) {
+	setTestEnv(t)
 
 	tests := []struct {
-		name string
-		args args
-		want struct{}
-		err  error
+		repo    string
+		wantErr error
 	}{
-		{
-			name: "Test new client with repo",
-			args: args{
-				opts: []string{"opt3"},
-			},
-			want: struct{}{},
-			err:  nil,
-		},
-		{
-			name: "Test new client with empty repo",
-			args: args{
-				opts: []string{"opt3"},
-			},
-			want: struct{}{},
-			err:  errEmptyRepo,
-		},
+		{repo: "", wantErr: github.ErrEmptyString},
 	}
 
 	for _, test := range tests {
-		got, err := NewAPIClient(test.args.opts)
+		_, err := github.NewClient(
+			github.WithRepo(test.repo),
+		)
+
 		if err != nil {
-			t.Logf("Name: %s, want (%v), got (%v)", test.name, test.err, err)
-			assert.Equal(t, test.err, err)
-			return
+			t.Logf("expected error (%v), received error (%v)", test.wantErr, err)
 		}
 
 		if err == nil {
-			t.Logf("Name: %s, want (%v), got (%v)", test.name, test.want, got)
-			assert.Equal(t, test.want, got)
-			return
+			t.Logf("expected error (%v), received error (%v)", test.wantErr, err)
+			t.Fail()
 		}
-
-		t.Errorf("Name: %s, want (%v), got (%v)", test.name, test.err, err)
-		t.Errorf("Name: %s, want (%v), got (%v)", test.name, test.want, got)
 	}
 }
 
-func TestNewClient_WithEvent(t *testing.T) {
-	type args struct {
-		opts []string
-	}
+func TestWithInvalidEvent(t *testing.T) {
+	setTestEnv(t)
 
 	tests := []struct {
-		name string
-		args args
-		want struct{}
-		err  error
+		event   string
+		wantErr error
 	}{
-		{
-			name: "Test new client with event",
-			args: args{
-				opts: []string{"opt4"},
-			},
-			want: struct{}{},
-			err:  nil,
-		},
-		{
-			name: "Test new client with empty event",
-			args: args{
-				opts: []string{"opt4"},
-			},
-			want: struct{}{},
-			err:  errEmptyEvent,
-		},
-		{
-			name: "Test new client with invalid event",
-			args: args{
-				opts: []string{"opt4"},
-			},
-			want: struct{}{},
-			err:  errInvalidEvent,
-		},
+		{event: "", wantErr: github.ErrEmptyString},
+		{event: "invalid", wantErr: github.ErrInvalidEvent},
 	}
 
 	for _, test := range tests {
-		got, err := NewAPIClient(test.args.opts)
+		_, err := github.NewClient(
+			github.WithEvent(test.event),
+		)
+
 		if err != nil {
-			t.Logf("Name: %s, want (%v), got (%v)", test.name, test.err, err)
-			assert.Equal(t, test.err, err)
-			return
+			switch err {
+			case github.ErrEmptyString:
+				t.Logf("expected error (%v), received error (%v)", test.wantErr, err)
+			case github.ErrInvalidEvent:
+				t.Logf("expected error (%v), received error (%v)", test.wantErr, err)
+			default:
+				t.Logf("received error (%v)", err)
+				t.Fail()
+			}
 		}
 
 		if err == nil {
-			t.Logf("Name: %s, want (%v), got (%v)", test.name, test.want, got)
-			assert.Equal(t, test.want, got)
-			return
+			t.Logf("expected error (%v), received error (%v)", test.wantErr, err)
+			t.Fail()
 		}
-
-		t.Errorf("Name: %s, want (%v), got (%v)", test.name, test.err, err)
-		t.Errorf("Name: %s, want (%v), got (%v)", test.name, test.want, got)
 	}
 }
 
-func TestNewClient_WithID(t *testing.T) {
-	type args struct {
-		opts []string
-	}
+func TestWithInvalidID(t *testing.T) {
+	setTestEnv(t)
 
 	tests := []struct {
-		name string
-		args args
-		want struct{}
-		err  error
+		id      string
+		wantErr error
 	}{
-		{
-			name: "Test new client with ID",
-			args: args{
-				opts: []string{"opt5"},
-			},
-			want: struct{}{},
-			err:  nil,
-		},
-		{
-			name: "Test new client with empty ID",
-			args: args{
-				opts: []string{"opt5"},
-			},
-			want: struct{}{},
-			err:  errEmptyID,
-		},
-		{
-			name: "Test new client with invalid ID",
-			args: args{
-				opts: []string{"opt5"},
-			},
-			want: struct{}{},
-			err:  errInvalidID,
-		},
+		{id: "", wantErr: github.ErrEmptyString},
+		{id: "12a", wantErr: github.ErrInvalidID},
 	}
 
 	for _, test := range tests {
-		got, err := NewAPIClient(test.args.opts)
+		_, err := github.NewClient(
+			github.WithID(test.id),
+		)
+
 		if err != nil {
-			t.Logf("Name: %s, want (%v), got (%v)", test.name, test.err, err)
-			assert.Equal(t, test.err, err)
-			return
+			switch err {
+			case github.ErrEmptyString:
+				t.Logf("expected error (%v), received error (%v)", test.wantErr, err)
+			case github.ErrInvalidID:
+				t.Logf("expected error (%v), received error (%v)", test.wantErr, err)
+			default:
+				t.Logf("received error (%v)", err)
+				t.Fail()
+			}
 		}
 
 		if err == nil {
-			t.Logf("Name: %s, want (%v), got (%v)", test.name, test.want, got)
-			assert.Equal(t, test.want, got)
-			return
+			t.Logf("expected error (%v), received error (%v)", test.wantErr, err)
+			t.Fail()
 		}
-
-		t.Errorf("Name: %s, want (%v), got (%v)", test.name, test.err, err)
-		t.Errorf("Name: %s, want (%v), got (%v)", test.name, test.want, got)
 	}
 }
