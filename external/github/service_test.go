@@ -22,6 +22,9 @@ func TestGetIssueByID(t *testing.T) {
 	res, err := client.GetIssueByID(context.TODO())
 	if err != nil {
 		switch err {
+		case github.ErrParsingURL:
+			t.Logf("expected error (%v), received error (%v)", github.ErrParsingURL, err)
+			t.Fail()
 		case github.ErrCreatingNewRequest:
 			t.Logf("expected error (%v), received error (%v)", github.ErrCreatingNewRequest, err)
 			t.Fail()
@@ -65,6 +68,9 @@ func TestGetPullByID(t *testing.T) {
 	res, err := client.GetIssueByID(context.TODO())
 	if err != nil {
 		switch err {
+		case github.ErrParsingURL:
+			t.Logf("expected error (%v), received error (%v)", github.ErrParsingURL, err)
+			t.Fail()
 		case github.ErrCreatingNewRequest:
 			t.Logf("expected error (%v), received error (%v)", github.ErrCreatingNewRequest, err)
 			t.Fail()
@@ -105,6 +111,9 @@ func TestGetLabelsFromIssue(t *testing.T) {
 	res, err := client.GetIssueByID(context.TODO())
 	if err != nil {
 		switch err {
+		case github.ErrParsingURL:
+			t.Logf("expected error (%v), received error (%v)", github.ErrParsingURL, err)
+			t.Fail()
 		case github.ErrCreatingNewRequest:
 			t.Logf("expected error (%v), received error (%v)", github.ErrCreatingNewRequest, err)
 			t.Fail()

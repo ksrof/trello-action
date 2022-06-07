@@ -7,7 +7,7 @@ import (
 )
 
 func setTestEnv(t *testing.T) {
-	t.Setenv("GH_TOKEN", "xxx")
+	t.Setenv("GH_TOKEN", "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")
 	t.Setenv("GH_USER", "ksrof")
 	t.Setenv("GH_REPO", "trello-action-test")
 	t.Setenv("GH_EVENT", "issues")
