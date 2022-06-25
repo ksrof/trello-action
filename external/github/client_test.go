@@ -29,6 +29,13 @@ func TestNewClient(t *testing.T) {
 			want: nil,
 		},
 		{
+			name: "Invalid host",
+			opts: []github.Option{
+				github.WithHost(""),
+			},
+			want: github.ErrInvalidHost,
+		},
+		{
 			name: "Invalid token",
 			opts: []github.Option{
 				github.WithToken("xxx"),
@@ -75,6 +82,7 @@ func TestNewClient(t *testing.T) {
 			}
 
 			assert.NotNil(t, client)
+			assert.NotNil(t, client.Host())
 			assert.NotNil(t, client.Token())
 			assert.NotNil(t, client.User())
 			assert.NotNil(t, client.Repo())
