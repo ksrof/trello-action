@@ -1,7 +1,9 @@
 package github
 
 import (
+	"context"
 	"errors"
+	"net/http"
 	"os"
 	"regexp"
 	"strings"
@@ -9,6 +11,7 @@ import (
 
 var (
 	minUsernameLength    int   = 4
+	ErrInvalidHost       error = errors.New("invalid github host url")
 	ErrInvalidToken      error = errors.New("invalid github personal access token")
 	ErrInvalidUser       error = errors.New("invalid github username")
 	ErrInvalidRepo       error = errors.New("invalid github repository")
@@ -19,14 +22,20 @@ var (
 type Option func(c *client) error
 
 type Client interface {
+	Host() string
 	Token() string
 	User() string
 	Repo() string
 	Event() string
 	ID() string
+
+	GetIssueByID(ctx context.Context) (*http.Response, error)
+	GetPullByID(ctx context.Context) (*http.Response, error)
+	GetIssueLabels(ctx context.Context) (*http.Response, error)
 }
 
 type client struct {
+	host  string
 	token string
 	user  string
 	repo  string
@@ -49,12 +58,37 @@ func NewClient(opts ...Option) (Client, error) {
 
 func defaults() []Option {
 	return []Option{
+		WithHost("https://api.github.com"),
 		WithToken(os.Getenv("GH_TOKEN")),
 		WithUser(os.Getenv("GH_USER")),
 		WithRepo(os.Getenv("GH_REPO")),
 		WithEvent(os.Getenv("GH_EVENT")),
 		WithID(os.Getenv("GH_ID")),
 	}
+}
+
+func (c *client) Host() string {
+	return c.host
+}
+
+func WithHost(host string) Option {
+	return func(c *client) error {
+		err := checkHost(host)
+		if err != nil {
+			return err
+		}
+
+		c.host = host
+		return nil
+	}
+}
+
+func checkHost(host string) error {
+	if strings.TrimSpace(host) == "" {
+		return ErrInvalidHost
+	}
+
+	return nil
 }
 
 func (c *client) Token() string {
@@ -150,7 +184,7 @@ func WithEvent(event string) Option {
 func checkEvent(event string) error {
 	events := []string{
 		"issues",
-		"pull_request",
+		"pulls",
 	}
 
 	for _, evt := range events {
