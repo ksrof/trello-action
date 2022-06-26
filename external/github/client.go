@@ -3,7 +3,6 @@ package github
 import (
 	"context"
 	"errors"
-	"net/http"
 	"os"
 	"regexp"
 	"strings"
@@ -29,9 +28,9 @@ type Client interface {
 	Event() string
 	ID() string
 
-	GetIssueByID(ctx context.Context) (*http.Response, error)
-	GetPullByID(ctx context.Context) (*http.Response, error)
-	GetIssueLabels(ctx context.Context) (*http.Response, error)
+	GetIssueByID(ctx context.Context) (map[string]string, error)
+	GetPullByID(ctx context.Context) (map[string]string, error)
+	GetIssueLabels(ctx context.Context) ([]map[string]string, error)
 }
 
 type client struct {

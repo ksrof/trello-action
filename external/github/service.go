@@ -2,12 +2,14 @@ package github
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"time"
 )
 
-func (c *client) GetIssueByID(ctx context.Context) (*http.Response, error) {
+func (c *client) GetIssueByID(ctx context.Context) (data map[string]string, err error) {
 	reqURL := fmt.Sprintf(
 		"%s/%s/%s/%s/%s/%s",
 		c.Host(),
@@ -33,10 +35,20 @@ func (c *client) GetIssueByID(ctx context.Context) (*http.Response, error) {
 		return nil, err
 	}
 
-	return res, nil
+	bytes, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	err = json.Unmarshal(bytes, &data)
+	if err != nil {
+		return nil, err
+	}
+
+	return data, nil
 }
 
-func (c *client) GetPullByID(ctx context.Context) (*http.Response, error) {
+func (c *client) GetPullByID(ctx context.Context) (data map[string]string, err error) {
 	reqURL := fmt.Sprintf(
 		"%s/%s/%s/%s/%s/%s",
 		c.Host(),
@@ -62,10 +74,20 @@ func (c *client) GetPullByID(ctx context.Context) (*http.Response, error) {
 		return nil, err
 	}
 
-	return res, nil
+	bytes, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	err = json.Unmarshal(bytes, &data)
+	if err != nil {
+		return nil, err
+	}
+
+	return data, nil
 }
 
-func (c *client) GetIssueLabels(ctx context.Context) (*http.Response, error) {
+func (c *client) GetIssueLabels(ctx context.Context) (data []map[string]string, err error) {
 	reqURL := fmt.Sprintf(
 		"%s/%s/%s/%s/%s/%s/%s",
 		c.Host(),
@@ -92,5 +114,15 @@ func (c *client) GetIssueLabels(ctx context.Context) (*http.Response, error) {
 		return nil, err
 	}
 
-	return res, nil
+	bytes, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	err = json.Unmarshal(bytes, &data)
+	if err != nil {
+		return nil, err
+	}
+
+	return data, nil
 }

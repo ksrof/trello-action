@@ -76,7 +76,7 @@ func TestNewClient(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			client, err := github.NewClient(tt.opts...)
 			if err != nil {
-				assert.NotNil(t, err)
+				assert.Error(t, err)
 				assert.EqualError(t, err, tt.want.Error())
 				return
 			}
