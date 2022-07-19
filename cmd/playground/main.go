@@ -1,3 +1,8 @@
+/*
+Copyright 2022 Kevin Suñer
+SPDX-License-Identifier: Apache-2.0
+*/
+
 package main
 
 import (
@@ -18,11 +23,6 @@ func main() {
 			"failed to create a new instance of *github.auth, error: %s",
 			err.Error(),
 		)
-		return
-	}
-
-	if auth.Basic() == "" {
-		log.Println("failed to return token")
 		return
 	}
 
