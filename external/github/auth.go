@@ -1,3 +1,8 @@
+/*
+Copyright 2022 Kevin Suñer
+SPDX-License-Identifier: Apache-2.0
+*/
+
 package github
 
 import (
@@ -32,7 +37,6 @@ func NewAuth(opts ...Option) (Auth, error) {
 				"failed to add options, error: %s",
 				err.Error(),
 			)
-
 			return nil, err
 		}
 	}
@@ -44,8 +48,15 @@ func NewAuth(opts ...Option) (Auth, error) {
 // to the *auth.user struct field.
 func WithUser(user string) Option {
 	return func(a *auth) error {
-		err := utils.ValidType(user)
+		err := utils.Validations(
+			utils.ValidateType(user),
+			utils.ValidateNotZero(user),
+		)
 		if err != nil {
+			log.Printf(
+				"failed to validate *auth.user, error: %s",
+				err.Error(),
+			)
 			return err
 		}
 
@@ -58,8 +69,15 @@ func WithUser(user string) Option {
 // to the *auth.repo struct field.
 func WithRepo(repo string) Option {
 	return func(a *auth) error {
-		err := utils.ValidType(repo)
+		err := utils.Validations(
+			utils.ValidateType(repo),
+			utils.ValidateNotZero(repo),
+		)
 		if err != nil {
+			log.Printf(
+				"failed to validate *auth.repo, error: %s",
+				err.Error(),
+			)
 			return err
 		}
 
@@ -72,8 +90,16 @@ func WithRepo(repo string) Option {
 // to the *auth.token struct field.
 func WithToken(token string) Option {
 	return func(a *auth) error {
-		err := utils.ValidType(token)
+		err := utils.Validations(
+			utils.ValidateType(token),
+			utils.ValidateNotZero(token),
+			// TODO: Add ValidateRegexp validation.
+		)
 		if err != nil {
+			log.Printf(
+				"failed to validate *auth.token, error: %s",
+				err.Error(),
+			)
 			return err
 		}
 
@@ -82,8 +108,19 @@ func WithToken(token string) Option {
 	}
 }
 
-// Basic returns a Github Personal Access Token.
+// Basic returns a Github Personal Access Token,
+// or an error string in case of failure.
 func (a *auth) Basic() string {
-	// TODO: Verify that there is a token.
+	err := utils.Validations(
+		utils.ValidateNotZero(a.token),
+	)
+	if err != nil {
+		log.Printf(
+			"failed to validate *auth.token, error: %s",
+			err.Error(),
+		)
+		return err.Error()
+	}
+
 	return a.token
 }
