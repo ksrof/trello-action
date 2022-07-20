@@ -3,8 +3,6 @@ Copyright 2022 Kevin Suñer
 SPDX-License-Identifier: Apache-2.0
 */
 
-// TODO: Add tests to check that every fn and method work.
-
 package utils
 
 import (
@@ -15,7 +13,6 @@ import (
 )
 
 var (
-	ErrNilValue     error = errors.New("value is nil")
 	ErrInvalidType  error = errors.New("invalid type provided")
 	ErrEmptyValue   error = errors.New("value is empty")
 	ErrInvalidMatch error = errors.New("value doesn't match regexp")
@@ -41,43 +38,15 @@ func Validations(validations ...Validation) error {
 	return nil
 }
 
-// ValidateType asserts the type of the given value.
-func ValidateType[T any](value T) Validation {
+// ValidateNotEmpty checks that the length of the
+// given value isn't zero.
+func ValidateNotEmpty[T any](value T) Validation {
 	return func() error {
-		if any(value) == nil {
-			log.Printf(
-				"failed type assertion any(value), error: %s\n",
-				ErrNilValue.Error(),
-			)
-			return ErrNilValue
-		}
-
-		switch any(value) {
-		case any(value).(string):
-			return nil
-		case any(value).(int):
-			return nil
-		}
-
-		return ErrUnknown
-	}
-}
-
-// ValidateNotZero checks the length of the given value isn't zero.
-func ValidateNotZero[T any](value T) Validation {
-	return func() error {
-		if any(value) == nil {
-			log.Printf(
-				"failed type assertion any(value), error: %s\n",
-				ErrNilValue.Error(),
-			)
-			return ErrNilValue
-		}
-
-		switch any(value) {
-		case any(value).(string):
+		switch any(value).(type) {
+		case string:
 			if len(any(value).(string)) == 0 {
 				log.Printf(
+					// TODO: Print the value.
 					"failed to validate any(value).(string), error: %s\n",
 					ErrEmptyValue.Error(),
 				)
@@ -85,19 +54,9 @@ func ValidateNotZero[T any](value T) Validation {
 			}
 
 			return nil
-		case any(value).(int):
-			if any(value).(int) == 0 {
-				log.Printf(
-					"failed to validate any(value).(int), error: %s\n",
-					ErrEmptyValue.Error(),
-				)
-				return ErrEmptyValue
-			}
-
-			return nil
+		default:
+			return ErrInvalidType
 		}
-
-		return ErrUnknown
 	}
 }
 
@@ -105,16 +64,8 @@ func ValidateNotZero[T any](value T) Validation {
 // matches the given value.
 func ValidateRegexp[T any](pattern regexp.Regexp, value T) Validation {
 	return func() error {
-		if any(value) == nil {
-			log.Printf(
-				"failed type assertion any(value), error: %s\n",
-				ErrNilValue.Error(),
-			)
-			return ErrNilValue
-		}
-
-		switch any(value) {
-		case any(value).(string):
+		switch any(value).(type) {
+		case string:
 			ok := pattern.MatchString(any(value).(string))
 			if !ok {
 				log.Printf(
@@ -125,12 +76,12 @@ func ValidateRegexp[T any](pattern regexp.Regexp, value T) Validation {
 			}
 
 			return nil
-		case any(value).(int):
+		case int:
 			strVal := strconv.Itoa(any(value).(int))
 			ok := pattern.Match([]byte(strVal))
 			if !ok {
 				log.Printf(
-					"failed to match any(value).(string), error: %s\n",
+					"failed to match any(value).(int), error: %s\n",
 					ErrInvalidMatch.Error(),
 				)
 
@@ -138,8 +89,8 @@ func ValidateRegexp[T any](pattern regexp.Regexp, value T) Validation {
 			}
 
 			return nil
+		default:
+			return ErrInvalidType
 		}
-
-		return ErrUnknown
 	}
 }
