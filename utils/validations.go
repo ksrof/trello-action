@@ -3,18 +3,23 @@ Copyright 2022 Kevin Suñer
 SPDX-License-Identifier: Apache-2.0
 */
 
+// TODO: Add tests to check that every fn and method work.
+
 package utils
 
 import (
 	"errors"
 	"log"
+	"regexp"
+	"strconv"
 )
 
 var (
-	ErrNilValue    error = errors.New("value is nil")
-	ErrInvalidType error = errors.New("invalid type provided")
-	ErrEmptyValue  error = errors.New("value is empty")
-	ErrUnknown     error = errors.New("unknown error")
+	ErrNilValue     error = errors.New("value is nil")
+	ErrInvalidType  error = errors.New("invalid type provided")
+	ErrEmptyValue   error = errors.New("value is empty")
+	ErrInvalidMatch error = errors.New("value doesn't match regexp")
+	ErrUnknown      error = errors.New("unknown error")
 )
 
 type Validation func() error
@@ -87,6 +92,49 @@ func ValidateNotZero[T any](value T) Validation {
 					ErrEmptyValue.Error(),
 				)
 				return ErrEmptyValue
+			}
+
+			return nil
+		}
+
+		return ErrUnknown
+	}
+}
+
+// ValidateRegexp checks that the given pattern
+// matches the given value.
+func ValidateRegexp[T any](pattern regexp.Regexp, value T) Validation {
+	return func() error {
+		if any(value) == nil {
+			log.Printf(
+				"failed type assertion any(value), error: %s\n",
+				ErrNilValue.Error(),
+			)
+			return ErrNilValue
+		}
+
+		switch any(value) {
+		case any(value).(string):
+			ok := pattern.MatchString(any(value).(string))
+			if !ok {
+				log.Printf(
+					"failed to match any(value).(string), error: %s\n",
+					ErrInvalidMatch.Error(),
+				)
+				return ErrInvalidMatch
+			}
+
+			return nil
+		case any(value).(int):
+			strVal := strconv.Itoa(any(value).(int))
+			ok := pattern.Match([]byte(strVal))
+			if !ok {
+				log.Printf(
+					"failed to match any(value).(string), error: %s\n",
+					ErrInvalidMatch.Error(),
+				)
+
+				return ErrInvalidMatch
 			}
 
 			return nil

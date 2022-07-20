@@ -3,10 +3,14 @@ Copyright 2022 Kevin Suñer
 SPDX-License-Identifier: Apache-2.0
 */
 
+// TODO: Generate mocks of the Auth interface.
+// TODO: Add tests to check that every fn and method work.
+
 package github
 
 import (
 	"log"
+	"regexp"
 
 	"github.com/ksrof/trello-action/utils"
 )
@@ -93,7 +97,10 @@ func WithToken(token string) Option {
 		err := utils.Validations(
 			utils.ValidateType(token),
 			utils.ValidateNotZero(token),
-			// TODO: Add ValidateRegexp validation.
+			utils.ValidateRegexp(
+				*regexp.MustCompile("[A-Za-z0-9_]{40}"),
+				token,
+			),
 		)
 		if err != nil {
 			log.Printf(
