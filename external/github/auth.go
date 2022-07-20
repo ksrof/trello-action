@@ -3,7 +3,6 @@ Copyright 2022 Kevin Suñer
 SPDX-License-Identifier: Apache-2.0
 */
 
-// TODO: Generate mocks of the Auth interface.
 // TODO: Add tests to check that every fn and method work.
 
 package github
@@ -53,8 +52,7 @@ func NewAuth(opts ...Option) (Auth, error) {
 func WithUser(user string) Option {
 	return func(a *auth) error {
 		err := utils.Validations(
-			utils.ValidateType(user),
-			utils.ValidateNotZero(user),
+			utils.ValidateNotEmpty(user),
 		)
 		if err != nil {
 			log.Printf(
@@ -74,8 +72,7 @@ func WithUser(user string) Option {
 func WithRepo(repo string) Option {
 	return func(a *auth) error {
 		err := utils.Validations(
-			utils.ValidateType(repo),
-			utils.ValidateNotZero(repo),
+			utils.ValidateNotEmpty(repo),
 		)
 		if err != nil {
 			log.Printf(
@@ -95,8 +92,7 @@ func WithRepo(repo string) Option {
 func WithToken(token string) Option {
 	return func(a *auth) error {
 		err := utils.Validations(
-			utils.ValidateType(token),
-			utils.ValidateNotZero(token),
+			utils.ValidateNotEmpty(token),
 			utils.ValidateRegexp(
 				*regexp.MustCompile("[A-Za-z0-9_]{40}"),
 				token,
@@ -115,19 +111,7 @@ func WithToken(token string) Option {
 	}
 }
 
-// Basic returns a Github Personal Access Token,
-// or an error string in case of failure.
+// Basic returns a Github Personal Access Token.
 func (a *auth) Basic() string {
-	err := utils.Validations(
-		utils.ValidateNotZero(a.token),
-	)
-	if err != nil {
-		log.Printf(
-			"failed to validate *auth.token, error: %s",
-			err.Error(),
-		)
-		return err.Error()
-	}
-
 	return a.token
 }
