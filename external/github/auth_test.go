@@ -25,24 +25,6 @@ func TestNewAuth(t *testing.T) {
 		wantErr error
 	}{
 		{
-			name: "github.WithUser() return nil if user is valid",
-			args: args{
-				opts: []github.Option{
-					github.WithUser("ksrof"),
-				},
-			},
-			wantErr: nil,
-		},
-		{
-			name: "github.WithRepo() return nil if repo is valid",
-			args: args{
-				opts: []github.Option{
-					github.WithRepo("trello-action"),
-				},
-			},
-			wantErr: nil,
-		},
-		{
 			name: "github.WithToken() return nil if token is valid",
 			args: args{
 				opts: []github.Option{
@@ -50,24 +32,6 @@ func TestNewAuth(t *testing.T) {
 				},
 			},
 			wantErr: nil,
-		},
-		{
-			name: "github.WithUser() return error if user is empty",
-			args: args{
-				opts: []github.Option{
-					github.WithUser(""),
-				},
-			},
-			wantErr: utils.ErrEmptyValue,
-		},
-		{
-			name: "github.WithRepo() return error if repo is empty",
-			args: args{
-				opts: []github.Option{
-					github.WithRepo(""),
-				},
-			},
-			wantErr: utils.ErrEmptyValue,
 		},
 		{
 			name: "github.WithToken() return error if token is empty",
@@ -86,6 +50,13 @@ func TestNewAuth(t *testing.T) {
 				},
 			},
 			wantErr: utils.ErrInvalidMatch,
+		},
+		{
+			name: "github.NewAuth() return error if there are no options",
+			args: args{
+				opts: []github.Option{},
+			},
+			wantErr: utils.ErrEmptyOptions,
 		},
 	}
 

@@ -13,22 +13,26 @@ import (
 )
 
 var (
+	ErrEmptyOptions error = errors.New("empty options")
 	ErrInvalidType  error = errors.New("invalid type provided")
 	ErrEmptyValue   error = errors.New("value is empty")
 	ErrInvalidMatch error = errors.New("value doesn't match regexp")
-	ErrUnknown      error = errors.New("unknown error")
 )
 
 type Validation func() error
 
 // Validations takes a set of validations and returns
 // an error in case of failure.
-func Validations(validations ...Validation) error {
-	for _, validation := range validations {
-		err := validation()
+func Validations(opts ...Validation) error {
+	if len(opts) == 0 {
+		return ErrEmptyOptions
+	}
+
+	for _, opt := range opts {
+		err := opt()
 		if err != nil {
 			log.Printf(
-				"failed to add validations, error: %s",
+				"failed to add validations, error: %s\n",
 				err.Error(),
 			)
 			return err
