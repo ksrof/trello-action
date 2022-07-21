@@ -15,7 +15,7 @@ import (
 
 func TestValidations(t *testing.T) {
 	type args struct {
-		validations []utils.Validation
+		opts []utils.Validation
 	}
 
 	tests := []struct {
@@ -26,7 +26,7 @@ func TestValidations(t *testing.T) {
 		{
 			name: "utils.ValidateNotEmpty() return nil if string is not empty",
 			args: args{
-				validations: []utils.Validation{
+				opts: []utils.Validation{
 					utils.ValidateNotEmpty("string"),
 				},
 			},
@@ -35,7 +35,7 @@ func TestValidations(t *testing.T) {
 		{
 			name: "utils.ValidateRegexp() return nil if string matches regexp",
 			args: args{
-				validations: []utils.Validation{
+				opts: []utils.Validation{
 					utils.ValidateRegexp(
 						*regexp.MustCompile("^[a-z]+$"),
 						"string",
@@ -47,7 +47,7 @@ func TestValidations(t *testing.T) {
 		{
 			name: "utils.ValidateRegexp() return nil if int matches regexp",
 			args: args{
-				validations: []utils.Validation{
+				opts: []utils.Validation{
 					utils.ValidateRegexp(
 						*regexp.MustCompile("^[0-9]{6}"),
 						123456,
@@ -59,7 +59,7 @@ func TestValidations(t *testing.T) {
 		{
 			name: "utils.ValidateNotEmpty() return error if type is invalid",
 			args: args{
-				validations: []utils.Validation{
+				opts: []utils.Validation{
 					utils.ValidateNotEmpty(float64(3.14)),
 				},
 			},
@@ -68,7 +68,7 @@ func TestValidations(t *testing.T) {
 		{
 			name: "utils.ValidateRegexp() return error if type is invalid",
 			args: args{
-				validations: []utils.Validation{
+				opts: []utils.Validation{
 					utils.ValidateRegexp(
 						*regexp.MustCompile("^[0-9]{6}"),
 						float64(3.14),
@@ -80,7 +80,7 @@ func TestValidations(t *testing.T) {
 		{
 			name: "utils.ValidateNotEmpty() return error if string is empty",
 			args: args{
-				validations: []utils.Validation{
+				opts: []utils.Validation{
 					utils.ValidateNotEmpty(""),
 				},
 			},
@@ -89,7 +89,7 @@ func TestValidations(t *testing.T) {
 		{
 			name: "utils.ValidateRegexp() return error if string does not match regexp",
 			args: args{
-				validations: []utils.Validation{
+				opts: []utils.Validation{
 					utils.ValidateRegexp(
 						*regexp.MustCompile("^[a-z]+$"),
 						"STRING",
@@ -101,7 +101,7 @@ func TestValidations(t *testing.T) {
 		{
 			name: "utils.ValidateRegexp() return error if int does not match regexp",
 			args: args{
-				validations: []utils.Validation{
+				opts: []utils.Validation{
 					utils.ValidateRegexp(
 						*regexp.MustCompile("^[0-9]{6}"),
 						123,
@@ -110,13 +110,20 @@ func TestValidations(t *testing.T) {
 			},
 			wantErr: utils.ErrInvalidMatch,
 		},
+		{
+			name: "utils.Validations() return error if there are no options",
+			args: args{
+				opts: []utils.Validation{},
+			},
+			wantErr: utils.ErrEmptyOptions,
+		},
 	}
 
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			err := utils.Validations(tc.args.validations...)
+			err := utils.Validations(tc.args.opts...)
 			assert.ErrorIs(t, err, tc.wantErr)
 		})
 	}

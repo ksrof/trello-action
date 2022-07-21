@@ -3,8 +3,6 @@ Copyright 2022 Kevin Suñer
 SPDX-License-Identifier: Apache-2.0
 */
 
-// TODO: Add tests to check that every fn and method work.
-
 package github
 
 import (
@@ -17,27 +15,29 @@ import (
 // Auth wraps methods that handle the authorization
 // of an user within the Github API.
 type Auth interface {
-	Basic() string
+	Basic() (token string)
 }
 
 type Option func(a *auth) error
 
 type auth struct {
-	user  string
-	repo  string
 	token string
 }
 
 // NewAuth takes a set of options and returns
 // an instance of *auth.
 func NewAuth(opts ...Option) (Auth, error) {
+	if len(opts) == 0 {
+		return nil, utils.ErrEmptyOptions
+	}
+
 	a := &auth{}
 
 	for _, opt := range opts {
 		err := opt(a)
 		if err != nil {
 			log.Printf(
-				"failed to add options, error: %s",
+				"failed to add options, error: %s\n",
 				err.Error(),
 			)
 			return nil, err
@@ -45,46 +45,6 @@ func NewAuth(opts ...Option) (Auth, error) {
 	}
 
 	return a, nil
-}
-
-// WithUser validates and adds the given user
-// to the *auth.user struct field.
-func WithUser(user string) Option {
-	return func(a *auth) error {
-		err := utils.Validations(
-			utils.ValidateNotEmpty(user),
-		)
-		if err != nil {
-			log.Printf(
-				"failed to validate *auth.user, error: %s",
-				err.Error(),
-			)
-			return err
-		}
-
-		a.user = user
-		return nil
-	}
-}
-
-// WithRepo validates and adds the given user
-// to the *auth.repo struct field.
-func WithRepo(repo string) Option {
-	return func(a *auth) error {
-		err := utils.Validations(
-			utils.ValidateNotEmpty(repo),
-		)
-		if err != nil {
-			log.Printf(
-				"failed to validate *auth.repo, error: %s",
-				err.Error(),
-			)
-			return err
-		}
-
-		a.repo = repo
-		return nil
-	}
 }
 
 // WithToken validates and adds the given token
@@ -100,7 +60,7 @@ func WithToken(token string) Option {
 		)
 		if err != nil {
 			log.Printf(
-				"failed to validate *auth.token, error: %s",
+				"failed to validate *auth.token, error: %s\n",
 				err.Error(),
 			)
 			return err
@@ -112,6 +72,7 @@ func WithToken(token string) Option {
 }
 
 // Basic returns a Github Personal Access Token.
-func (a *auth) Basic() string {
-	return a.token
+func (a *auth) Basic() (token string) {
+	token = a.token
+	return token
 }
