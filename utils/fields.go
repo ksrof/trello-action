@@ -34,6 +34,10 @@ func NewFieldsMapper(opts ...Field) (fields interface{}, err error) {
 // and returns it if there is no error.
 func WithMap(fields map[string]string) Field {
 	return func() (interface{}, error) {
+		if len(fields) == 0 {
+			return nil, ErrEmptyMap
+		}
+
 		for key, value := range fields {
 			err := Validations(
 				ValidateNotEmpty(key),

@@ -38,6 +38,15 @@ func TestNewFieldsMapper(t *testing.T) {
 			wantErr: nil,
 		},
 		{
+			name: "utils.WithMap() return error if map is empty",
+			args: args{
+				opts: []utils.Field{
+					utils.WithMap(map[string]string{}),
+				},
+			},
+			wantErr: utils.ErrEmptyMap,
+		},
+		{
 			name: "utils.WithMap() return error if key is empty",
 			args: args{
 				opts: []utils.Field{
