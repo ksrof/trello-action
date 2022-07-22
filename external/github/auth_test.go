@@ -70,7 +70,7 @@ func TestNewAuth(t *testing.T) {
 	}
 }
 
-func TestBasic(t *testing.T) {
+func TestAuth_Basic(t *testing.T) {
 	type args struct {
 		opts []github.Option
 	}
