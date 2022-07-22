@@ -19,7 +19,7 @@ import (
 
 var ctx = context.Background()
 
-func TestGet(t *testing.T) {
+func TestIssues_Get(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	issues := mock.NewMockIssues(ctrl)
 
@@ -93,6 +93,30 @@ func TestGet(t *testing.T) {
 			},
 		},
 		{
+			name: "issues.Get() returns a failed *github.IssuesResponse struct if map is empty",
+			args: args{
+				ctx: ctx,
+				opts: []utils.Field{
+					utils.WithMap(map[string]string{}),
+				},
+			},
+			want: &github.IssuesResponse{
+				Status: http.StatusText(http.StatusBadRequest),
+				Code:   http.StatusBadRequest,
+				Error:  utils.ErrEmptyMap.Error(),
+			},
+			wantErr: utils.ErrEmptyMap,
+			mocks: func(issues *mock.MockIssues) {
+				issues.EXPECT().Get(ctx, gomock.Any()).
+					Return(
+						&github.IssuesResponse{
+							Status: http.StatusText(http.StatusBadRequest),
+							Code:   http.StatusBadRequest,
+							Error:  utils.ErrEmptyMap.Error(),
+						}, nil).MaxTimes(1)
+			},
+		},
+		{
 			name: "issues.Get() returns a failed *github.IssuesResponse struct if map value is empty",
 			args: args{
 				ctx: ctx,
@@ -120,7 +144,30 @@ func TestGet(t *testing.T) {
 						}, nil).MaxTimes(1)
 			},
 		},
-		// TODO: Add more test cases
+		{
+			name: "issues.Get() returns a failed *github.IssuesResponse struct if map key is empty",
+			args: args{
+				ctx: ctx,
+				opts: []utils.Field{
+					utils.WithMap(map[string]string{}),
+				},
+			},
+			want: &github.IssuesResponse{
+				Status: http.StatusText(http.StatusBadRequest),
+				Code:   http.StatusBadRequest,
+				Error:  utils.ErrEmptyMap.Error(),
+			},
+			wantErr: utils.ErrEmptyMap,
+			mocks: func(issues *mock.MockIssues) {
+				issues.EXPECT().Get(ctx, gomock.Any()).
+					Return(
+						&github.IssuesResponse{
+							Status: http.StatusText(http.StatusBadRequest),
+							Code:   http.StatusBadRequest,
+							Error:  utils.ErrEmptyMap.Error(),
+						}, nil).MaxTimes(1)
+			},
+		},
 	}
 
 	for _, tc := range tests {
@@ -140,7 +187,7 @@ func TestGet(t *testing.T) {
 	}
 }
 
-func TestGetLabels(t *testing.T) {
+func TestIssues_GetLabels(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	issues := mock.NewMockIssues(ctrl)
 
@@ -228,6 +275,30 @@ func TestGetLabels(t *testing.T) {
 			},
 		},
 		{
+			name: "issues.GetLabels() returns a failed *github.IssuesResponse struct if map is empty",
+			args: args{
+				ctx: ctx,
+				opts: []utils.Field{
+					utils.WithMap(map[string]string{}),
+				},
+			},
+			want: &github.IssuesResponse{
+				Status: http.StatusText(http.StatusBadRequest),
+				Code:   http.StatusBadRequest,
+				Error:  utils.ErrEmptyMap.Error(),
+			},
+			wantErr: utils.ErrEmptyMap,
+			mocks: func(issues *mock.MockIssues) {
+				issues.EXPECT().GetLabels(ctx, gomock.Any()).
+					Return(
+						&github.IssuesResponse{
+							Status: http.StatusText(http.StatusBadRequest),
+							Code:   http.StatusBadRequest,
+							Error:  utils.ErrEmptyMap.Error(),
+						}, nil).MaxTimes(1)
+			},
+		},
+		{
 			name: "issues.GetLabels() returns a failed *github.IssuesResponse struct if map value is empty",
 			args: args{
 				ctx: ctx,
@@ -255,7 +326,30 @@ func TestGetLabels(t *testing.T) {
 						}, nil).MaxTimes(1)
 			},
 		},
-		// TODO: Add more test cases
+		{
+			name: "issues.GetLabels() returns a failed *github.IssuesResponse struct if map key is empty",
+			args: args{
+				ctx: ctx,
+				opts: []utils.Field{
+					utils.WithMap(map[string]string{}),
+				},
+			},
+			want: &github.IssuesResponse{
+				Status: http.StatusText(http.StatusBadRequest),
+				Code:   http.StatusBadRequest,
+				Error:  utils.ErrEmptyMap.Error(),
+			},
+			wantErr: utils.ErrEmptyMap,
+			mocks: func(issues *mock.MockIssues) {
+				issues.EXPECT().GetLabels(ctx, gomock.Any()).
+					Return(
+						&github.IssuesResponse{
+							Status: http.StatusText(http.StatusBadRequest),
+							Code:   http.StatusBadRequest,
+							Error:  utils.ErrEmptyMap.Error(),
+						}, nil).MaxTimes(1)
+			},
+		},
 	}
 
 	for _, tc := range tests {
