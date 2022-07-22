@@ -13,6 +13,7 @@ import (
 )
 
 var (
+	ErrEmptyMap     error = errors.New("empty map")
 	ErrEmptyOptions error = errors.New("empty options")
 	ErrInvalidType  error = errors.New("invalid type provided")
 	ErrEmptyValue   error = errors.New("value is empty")
