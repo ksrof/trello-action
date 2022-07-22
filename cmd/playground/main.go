@@ -40,7 +40,7 @@ func main() {
 		})
 	if err != nil {
 		log.Printf(
-			"failed to use method github.Get(), error: %s\n",
+			"failed to use method issues.Get(), error: %s\n",
 			err.Error(),
 		)
 		return
@@ -59,7 +59,7 @@ func main() {
 		})
 	if err != nil {
 		log.Printf(
-			"failed to use method github.GetLabels(), error: %s\n",
+			"failed to use method issues.GetLabels(), error: %s\n",
 			err.Error(),
 		)
 		return
