@@ -6,7 +6,6 @@ SPDX-License-Identifier: Apache-2.0
 package github
 
 import (
-	"log"
 	"regexp"
 
 	"github.com/ksrof/trello-action/utils"
@@ -28,7 +27,13 @@ type auth struct {
 // an instance of *auth.
 func NewAuth(opts ...Option) (Auth, error) {
 	if len(opts) == 0 {
-		return nil, utils.ErrEmptyOptions
+		return nil, utils.NewError(
+			utils.WithLogger(
+				utils.ErrZeroLength.Error(),
+				utils.LogPrefixInfo,
+				utils.LogLevelInfo,
+			),
+		)
 	}
 
 	a := &auth{}
@@ -36,11 +41,13 @@ func NewAuth(opts ...Option) (Auth, error) {
 	for _, opt := range opts {
 		err := opt(a)
 		if err != nil {
-			log.Printf(
-				"failed to add options, error: %s\n",
-				err.Error(),
+			return nil, utils.NewError(
+				utils.WithLogger(
+					err.Error(),
+					utils.LogPrefixInfo,
+					utils.LogLevelInfo,
+				),
 			)
-			return nil, err
 		}
 	}
 
@@ -59,10 +66,6 @@ func WithToken(token string) Option {
 			),
 		)
 		if err != nil {
-			log.Printf(
-				"failed to validate *auth.token, error: %s\n",
-				err.Error(),
-			)
 			return err
 		}
 

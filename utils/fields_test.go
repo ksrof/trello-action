@@ -21,6 +21,7 @@ func TestNewFieldsMapper(t *testing.T) {
 		name    string
 		args    args
 		want    map[string]string
+		errStr  string
 		wantErr error
 	}{
 		{
@@ -44,7 +45,7 @@ func TestNewFieldsMapper(t *testing.T) {
 					utils.WithMap(map[string]string{}),
 				},
 			},
-			wantErr: utils.ErrEmptyMap,
+			errStr: utils.ErrZeroLength.Error(),
 		},
 		{
 			name: "utils.WithMap() return error if key is empty",
@@ -55,7 +56,7 @@ func TestNewFieldsMapper(t *testing.T) {
 					}),
 				},
 			},
-			wantErr: utils.ErrEmptyValue,
+			errStr: utils.ErrZeroLength.Error(),
 		},
 		{
 			name: "utils.WithMap() return error if value is empty",
@@ -66,14 +67,14 @@ func TestNewFieldsMapper(t *testing.T) {
 					}),
 				},
 			},
-			wantErr: utils.ErrEmptyValue,
+			errStr: utils.ErrZeroLength.Error(),
 		},
 		{
 			name: "utils.NewFieldsMapper() return error if there are no options",
 			args: args{
 				[]utils.Field{},
 			},
-			wantErr: utils.ErrEmptyOptions,
+			errStr: utils.ErrZeroLength.Error(),
 		},
 	}
 
@@ -83,10 +84,11 @@ func TestNewFieldsMapper(t *testing.T) {
 			t.Parallel()
 			fields, err := utils.NewFieldsMapper(tc.args.opts...)
 			if err != nil {
-				assert.ErrorIs(t, err, tc.wantErr)
+				assert.EqualError(t, err, tc.errStr)
 				return
 			}
 
+			assert.ErrorIs(t, err, tc.wantErr)
 			assert.Equal(t, tc.want, fields)
 		})
 	}

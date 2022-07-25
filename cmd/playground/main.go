@@ -8,7 +8,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 
 	"github.com/ksrof/trello-action/external/github"
 	"github.com/ksrof/trello-action/utils"
@@ -19,10 +18,6 @@ func main() {
 		github.WithToken("ghp_F41fR24d9Tvn3YRzC7GdOPAfhgjBzP5MLP7c"),
 	)
 	if err != nil {
-		log.Printf(
-			"failed to create a new instance of *github.auth, error: %s\n",
-			err.Error(),
-		)
 		return
 	}
 
@@ -39,14 +34,10 @@ func main() {
 			}),
 		})
 	if err != nil {
-		log.Printf(
-			"failed to use method issues.Get(), error: %s\n",
-			err.Error(),
-		)
 		return
 	}
 
-	issueLabels, err := issues.GetLabels(
+	labels, err := issues.GetLabels(
 		context.TODO(),
 		[]utils.Field{
 			utils.WithMap(map[string]string{
@@ -58,14 +49,10 @@ func main() {
 			}),
 		})
 	if err != nil {
-		log.Printf(
-			"failed to use method issues.GetLabels(), error: %s\n",
-			err.Error(),
-		)
 		return
 	}
 
 	fmt.Println(issue)
 	fmt.Println("---------------------------")
-	fmt.Println(issueLabels)
+	fmt.Println(labels)
 }

@@ -6,18 +6,8 @@ SPDX-License-Identifier: Apache-2.0
 package utils
 
 import (
-	"errors"
-	"log"
 	"regexp"
 	"strconv"
-)
-
-var (
-	ErrEmptyMap     error = errors.New("empty map")
-	ErrEmptyOptions error = errors.New("empty options")
-	ErrInvalidType  error = errors.New("invalid type provided")
-	ErrEmptyValue   error = errors.New("value is empty")
-	ErrInvalidMatch error = errors.New("value doesn't match regexp")
 )
 
 type Validation func() error
@@ -26,17 +16,25 @@ type Validation func() error
 // an error in case of failure.
 func Validations(opts ...Validation) error {
 	if len(opts) == 0 {
-		return ErrEmptyOptions
+		return NewError(
+			WithLogger(
+				ErrZeroLength.Error(),
+				LogPrefixInfo,
+				LogLevelInfo,
+			),
+		)
 	}
 
 	for _, opt := range opts {
 		err := opt()
 		if err != nil {
-			log.Printf(
-				"failed to add validations, error: %s\n",
-				err.Error(),
+			return NewError(
+				WithLogger(
+					err.Error(),
+					LogPrefixInfo,
+					LogLevelInfo,
+				),
 			)
-			return err
 		}
 	}
 
@@ -50,14 +48,8 @@ func ValidateNotEmpty[T any](value T) Validation {
 		switch any(value).(type) {
 		case string:
 			if len(any(value).(string)) == 0 {
-				log.Printf(
-					// TODO: Print the value.
-					"failed to validate any(value).(string), error: %s\n",
-					ErrEmptyValue.Error(),
-				)
-				return ErrEmptyValue
+				return ErrZeroLength
 			}
-
 			return nil
 		default:
 			return ErrInvalidType
@@ -73,10 +65,6 @@ func ValidateRegexp[T any](pattern regexp.Regexp, value T) Validation {
 		case string:
 			ok := pattern.MatchString(any(value).(string))
 			if !ok {
-				log.Printf(
-					"failed to match any(value).(string), error: %s\n",
-					ErrInvalidMatch.Error(),
-				)
 				return ErrInvalidMatch
 			}
 
@@ -85,11 +73,6 @@ func ValidateRegexp[T any](pattern regexp.Regexp, value T) Validation {
 			strVal := strconv.Itoa(any(value).(int))
 			ok := pattern.Match([]byte(strVal))
 			if !ok {
-				log.Printf(
-					"failed to match any(value).(int), error: %s\n",
-					ErrInvalidMatch.Error(),
-				)
-
 				return ErrInvalidMatch
 			}
 
