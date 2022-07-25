@@ -37,21 +37,6 @@ func NewError(opts ...Errors) (err error) {
 	return nil
 }
 
-// WithMessage sets the message of the error.
-func WithMessage(errMessage string) Errors {
-	return func() error {
-		err := Validations(
-			ValidateNotEmpty(errMessage),
-		)
-		if err != nil {
-			return err
-		}
-
-		err = errors.New(errMessage)
-		return err
-	}
-}
-
 // WithLogger sets the message of the error,
 // and logs it using the standard logger.
 func WithLogger(errMessage, prefix string, level int) Errors {
