@@ -16,25 +16,13 @@ type Validation func() error
 // an error in case of failure.
 func Validations(opts ...Validation) error {
 	if len(opts) == 0 {
-		return NewError(
-			WithLogger(
-				ErrZeroLength.Error(),
-				LogPrefixInfo,
-				LogLevelInfo,
-			),
-		)
+		return LogError(ErrZeroLength.Error(), LogPrefixInfo, LogLevelInfo)
 	}
 
 	for _, opt := range opts {
 		err := opt()
 		if err != nil {
-			return NewError(
-				WithLogger(
-					err.Error(),
-					LogPrefixInfo,
-					LogLevelInfo,
-				),
-			)
+			return LogError(err.Error(), LogPrefixInfo, LogLevelInfo)
 		}
 	}
 
