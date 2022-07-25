@@ -32,6 +32,7 @@ func TestIssues_Get(t *testing.T) {
 		name    string
 		args    args
 		want    *github.IssuesResponse
+		errStr  string
 		wantErr error
 		mocks   func(issues *mock.MockIssues)
 	}{
@@ -69,6 +70,7 @@ func TestIssues_Get(t *testing.T) {
 				Status: http.StatusText(http.StatusOK),
 				Code:   http.StatusOK,
 			},
+			wantErr: nil,
 			mocks: func(issues *mock.MockIssues) {
 				issues.EXPECT().Get(ctx, gomock.Any()).
 					Return(
@@ -103,17 +105,23 @@ func TestIssues_Get(t *testing.T) {
 			want: &github.IssuesResponse{
 				Status: http.StatusText(http.StatusBadRequest),
 				Code:   http.StatusBadRequest,
-				Error:  utils.ErrEmptyMap.Error(),
+				Error:  utils.ErrZeroLength.Error(),
 			},
-			wantErr: utils.ErrEmptyMap,
+			errStr: utils.ErrZeroLength.Error(),
 			mocks: func(issues *mock.MockIssues) {
 				issues.EXPECT().Get(ctx, gomock.Any()).
 					Return(
 						&github.IssuesResponse{
 							Status: http.StatusText(http.StatusBadRequest),
 							Code:   http.StatusBadRequest,
-							Error:  utils.ErrEmptyMap.Error(),
-						}, nil).MaxTimes(1)
+							Error:  utils.ErrZeroLength.Error(),
+						}, utils.NewError(
+							utils.WithLogger(
+								utils.ErrZeroLength.Error(),
+								utils.LogPrefixInfo,
+								utils.LogLevelInfo,
+							),
+						)).MaxTimes(1)
 			},
 		},
 		{
@@ -131,17 +139,23 @@ func TestIssues_Get(t *testing.T) {
 			want: &github.IssuesResponse{
 				Status: http.StatusText(http.StatusBadRequest),
 				Code:   http.StatusBadRequest,
-				Error:  utils.ErrEmptyValue.Error(),
+				Error:  utils.ErrZeroLength.Error(),
 			},
-			wantErr: utils.ErrEmptyValue,
+			errStr: utils.ErrZeroLength.Error(),
 			mocks: func(issues *mock.MockIssues) {
 				issues.EXPECT().Get(ctx, gomock.Any()).
 					Return(
 						&github.IssuesResponse{
 							Status: http.StatusText(http.StatusBadRequest),
 							Code:   http.StatusBadRequest,
-							Error:  utils.ErrEmptyValue.Error(),
-						}, nil).MaxTimes(1)
+							Error:  utils.ErrZeroLength.Error(),
+						}, utils.NewError(
+							utils.WithLogger(
+								utils.ErrZeroLength.Error(),
+								utils.LogPrefixInfo,
+								utils.LogLevelInfo,
+							),
+						)).MaxTimes(1)
 			},
 		},
 		{
@@ -149,23 +163,31 @@ func TestIssues_Get(t *testing.T) {
 			args: args{
 				ctx: ctx,
 				opts: []utils.Field{
-					utils.WithMap(map[string]string{}),
+					utils.WithMap(map[string]string{
+						"": "ksrof",
+					}),
 				},
 			},
 			want: &github.IssuesResponse{
 				Status: http.StatusText(http.StatusBadRequest),
 				Code:   http.StatusBadRequest,
-				Error:  utils.ErrEmptyMap.Error(),
+				Error:  utils.ErrZeroLength.Error(),
 			},
-			wantErr: utils.ErrEmptyMap,
+			errStr: utils.ErrZeroLength.Error(),
 			mocks: func(issues *mock.MockIssues) {
 				issues.EXPECT().Get(ctx, gomock.Any()).
 					Return(
 						&github.IssuesResponse{
 							Status: http.StatusText(http.StatusBadRequest),
 							Code:   http.StatusBadRequest,
-							Error:  utils.ErrEmptyMap.Error(),
-						}, nil).MaxTimes(1)
+							Error:  utils.ErrZeroLength.Error(),
+						}, utils.NewError(
+							utils.WithLogger(
+								utils.ErrZeroLength.Error(),
+								utils.LogPrefixInfo,
+								utils.LogLevelInfo,
+							),
+						)).MaxTimes(1)
 			},
 		},
 	}
@@ -177,11 +199,12 @@ func TestIssues_Get(t *testing.T) {
 			tc.mocks(issues)
 			issue, err := issues.Get(tc.args.ctx, tc.args.opts)
 			if err != nil {
-				assert.ErrorIs(t, err, tc.wantErr)
+				assert.EqualError(t, err, tc.errStr)
 				assert.Equal(t, tc.want, issue)
 				return
 			}
 
+			assert.ErrorIs(t, err, tc.wantErr)
 			assert.Equal(t, tc.want, issue)
 		})
 	}
@@ -200,6 +223,7 @@ func TestIssues_GetLabels(t *testing.T) {
 		name    string
 		args    args
 		want    *github.IssuesResponse
+		errStr  string
 		wantErr error
 		mocks   func(issues *mock.MockIssues)
 	}{
@@ -244,6 +268,7 @@ func TestIssues_GetLabels(t *testing.T) {
 				Status: http.StatusText(http.StatusOK),
 				Code:   http.StatusOK,
 			},
+			wantErr: nil,
 			mocks: func(issues *mock.MockIssues) {
 				issues.EXPECT().GetLabels(ctx, gomock.Any()).
 					Return(
@@ -285,17 +310,23 @@ func TestIssues_GetLabels(t *testing.T) {
 			want: &github.IssuesResponse{
 				Status: http.StatusText(http.StatusBadRequest),
 				Code:   http.StatusBadRequest,
-				Error:  utils.ErrEmptyMap.Error(),
+				Error:  utils.ErrZeroLength.Error(),
 			},
-			wantErr: utils.ErrEmptyMap,
+			errStr: utils.ErrZeroLength.Error(),
 			mocks: func(issues *mock.MockIssues) {
 				issues.EXPECT().GetLabels(ctx, gomock.Any()).
 					Return(
 						&github.IssuesResponse{
 							Status: http.StatusText(http.StatusBadRequest),
 							Code:   http.StatusBadRequest,
-							Error:  utils.ErrEmptyMap.Error(),
-						}, nil).MaxTimes(1)
+							Error:  utils.ErrZeroLength.Error(),
+						}, utils.NewError(
+							utils.WithLogger(
+								utils.ErrZeroLength.Error(),
+								utils.LogPrefixInfo,
+								utils.LogLevelInfo,
+							),
+						)).MaxTimes(1)
 			},
 		},
 		{
@@ -313,17 +344,23 @@ func TestIssues_GetLabels(t *testing.T) {
 			want: &github.IssuesResponse{
 				Status: http.StatusText(http.StatusBadRequest),
 				Code:   http.StatusBadRequest,
-				Error:  utils.ErrEmptyValue.Error(),
+				Error:  utils.ErrZeroLength.Error(),
 			},
-			wantErr: utils.ErrEmptyValue,
+			errStr: utils.ErrZeroLength.Error(),
 			mocks: func(issues *mock.MockIssues) {
 				issues.EXPECT().GetLabels(ctx, gomock.Any()).
 					Return(
 						&github.IssuesResponse{
 							Status: http.StatusText(http.StatusBadRequest),
 							Code:   http.StatusBadRequest,
-							Error:  utils.ErrEmptyValue.Error(),
-						}, nil).MaxTimes(1)
+							Error:  utils.ErrZeroLength.Error(),
+						}, utils.NewError(
+							utils.WithLogger(
+								utils.ErrZeroLength.Error(),
+								utils.LogPrefixInfo,
+								utils.LogLevelInfo,
+							),
+						)).MaxTimes(1)
 			},
 		},
 		{
@@ -337,17 +374,23 @@ func TestIssues_GetLabels(t *testing.T) {
 			want: &github.IssuesResponse{
 				Status: http.StatusText(http.StatusBadRequest),
 				Code:   http.StatusBadRequest,
-				Error:  utils.ErrEmptyMap.Error(),
+				Error:  utils.ErrZeroLength.Error(),
 			},
-			wantErr: utils.ErrEmptyMap,
+			errStr: utils.ErrZeroLength.Error(),
 			mocks: func(issues *mock.MockIssues) {
 				issues.EXPECT().GetLabels(ctx, gomock.Any()).
 					Return(
 						&github.IssuesResponse{
 							Status: http.StatusText(http.StatusBadRequest),
 							Code:   http.StatusBadRequest,
-							Error:  utils.ErrEmptyMap.Error(),
-						}, nil).MaxTimes(1)
+							Error:  utils.ErrZeroLength.Error(),
+						}, utils.NewError(
+							utils.WithLogger(
+								utils.ErrZeroLength.Error(),
+								utils.LogPrefixInfo,
+								utils.LogLevelInfo,
+							),
+						)).MaxTimes(1)
 			},
 		},
 	}
@@ -359,11 +402,12 @@ func TestIssues_GetLabels(t *testing.T) {
 			tc.mocks(issues)
 			issueLabels, err := issues.GetLabels(tc.args.ctx, tc.args.opts)
 			if err != nil {
-				assert.ErrorIs(t, err, tc.wantErr)
+				assert.EqualError(t, err, tc.errStr)
 				assert.Equal(t, tc.want, issueLabels)
 				return
 			}
 
+			assert.ErrorIs(t, err, tc.wantErr)
 			assert.Equal(t, tc.want, issueLabels)
 		})
 	}

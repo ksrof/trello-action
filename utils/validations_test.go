@@ -21,6 +21,7 @@ func TestValidations(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    args
+		errStr  string
 		wantErr error
 	}{
 		{
@@ -63,7 +64,7 @@ func TestValidations(t *testing.T) {
 					utils.ValidateNotEmpty(float64(3.14)),
 				},
 			},
-			wantErr: utils.ErrInvalidType,
+			errStr: utils.ErrInvalidType.Error(),
 		},
 		{
 			name: "utils.ValidateRegexp() return error if type is invalid",
@@ -75,7 +76,7 @@ func TestValidations(t *testing.T) {
 					),
 				},
 			},
-			wantErr: utils.ErrInvalidType,
+			errStr: utils.ErrInvalidType.Error(),
 		},
 		{
 			name: "utils.ValidateNotEmpty() return error if string is empty",
@@ -84,7 +85,7 @@ func TestValidations(t *testing.T) {
 					utils.ValidateNotEmpty(""),
 				},
 			},
-			wantErr: utils.ErrEmptyValue,
+			errStr: utils.ErrZeroLength.Error(),
 		},
 		{
 			name: "utils.ValidateRegexp() return error if string does not match regexp",
@@ -96,7 +97,7 @@ func TestValidations(t *testing.T) {
 					),
 				},
 			},
-			wantErr: utils.ErrInvalidMatch,
+			errStr: utils.ErrInvalidMatch.Error(),
 		},
 		{
 			name: "utils.ValidateRegexp() return error if int does not match regexp",
@@ -108,14 +109,14 @@ func TestValidations(t *testing.T) {
 					),
 				},
 			},
-			wantErr: utils.ErrInvalidMatch,
+			errStr: utils.ErrInvalidMatch.Error(),
 		},
 		{
 			name: "utils.Validations() return error if there are no options",
 			args: args{
 				opts: []utils.Validation{},
 			},
-			wantErr: utils.ErrEmptyOptions,
+			errStr: utils.ErrZeroLength.Error(),
 		},
 	}
 
@@ -124,6 +125,11 @@ func TestValidations(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 			err := utils.Validations(tc.args.opts...)
+			if err != nil {
+				assert.EqualError(t, err, tc.errStr)
+				return
+			}
+
 			assert.ErrorIs(t, err, tc.wantErr)
 		})
 	}

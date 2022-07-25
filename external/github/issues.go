@@ -55,10 +55,16 @@ func (r *IssuesResponse) Get(ctx context.Context, opts []utils.Field) (*IssuesRe
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, reqURL, http.NoBody)
 	if err != nil {
 		return &IssuesResponse{
-			Status: http.StatusText(http.StatusInternalServerError),
-			Code:   http.StatusInternalServerError,
-			Error:  err.Error(),
-		}, err
+				Status: http.StatusText(http.StatusInternalServerError),
+				Code:   http.StatusInternalServerError,
+				Error:  err.Error(),
+			}, utils.NewError(
+				utils.WithLogger(
+					err.Error(),
+					utils.LogPrefixInfo,
+					utils.LogLevelInfo,
+				),
+			)
 	}
 
 	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", field["token"]))
@@ -66,29 +72,47 @@ func (r *IssuesResponse) Get(ctx context.Context, opts []utils.Field) (*IssuesRe
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return &IssuesResponse{
-			Status: http.StatusText(http.StatusInternalServerError),
-			Code:   http.StatusInternalServerError,
-			Error:  err.Error(),
-		}, err
+				Status: http.StatusText(http.StatusInternalServerError),
+				Code:   http.StatusInternalServerError,
+				Error:  err.Error(),
+			}, utils.NewError(
+				utils.WithLogger(
+					err.Error(),
+					utils.LogPrefixInfo,
+					utils.LogLevelInfo,
+				),
+			)
 	}
 
 	data, err := io.ReadAll(res.Body)
 	if err != nil {
 		return &IssuesResponse{
-			Status: http.StatusText(http.StatusInternalServerError),
-			Code:   http.StatusInternalServerError,
-			Error:  err.Error(),
-		}, err
+				Status: http.StatusText(http.StatusInternalServerError),
+				Code:   http.StatusInternalServerError,
+				Error:  err.Error(),
+			}, utils.NewError(
+				utils.WithLogger(
+					err.Error(),
+					utils.LogPrefixInfo,
+					utils.LogLevelInfo,
+				),
+			)
 	}
 
 	var response map[string]any
 	err = json.Unmarshal(data, &response)
 	if err != nil {
 		return &IssuesResponse{
-			Status: http.StatusText(http.StatusInternalServerError),
-			Code:   http.StatusInternalServerError,
-			Error:  err.Error(),
-		}, err
+				Status: http.StatusText(http.StatusInternalServerError),
+				Code:   http.StatusInternalServerError,
+				Error:  err.Error(),
+			}, utils.NewError(
+				utils.WithLogger(
+					err.Error(),
+					utils.LogPrefixInfo,
+					utils.LogLevelInfo,
+				),
+			)
 	}
 
 	return &IssuesResponse{
@@ -118,10 +142,16 @@ func (r *IssuesResponse) GetLabels(ctx context.Context, opts []utils.Field) (*Is
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, reqURL, http.NoBody)
 	if err != nil {
 		return &IssuesResponse{
-			Status: http.StatusText(http.StatusInternalServerError),
-			Code:   http.StatusInternalServerError,
-			Error:  err.Error(),
-		}, err
+				Status: http.StatusText(http.StatusInternalServerError),
+				Code:   http.StatusInternalServerError,
+				Error:  err.Error(),
+			}, utils.NewError(
+				utils.WithLogger(
+					err.Error(),
+					utils.LogPrefixInfo,
+					utils.LogLevelInfo,
+				),
+			)
 	}
 
 	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", field["token"]))
@@ -129,29 +159,47 @@ func (r *IssuesResponse) GetLabels(ctx context.Context, opts []utils.Field) (*Is
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return &IssuesResponse{
-			Status: http.StatusText(http.StatusInternalServerError),
-			Code:   http.StatusInternalServerError,
-			Error:  err.Error(),
-		}, err
+				Status: http.StatusText(http.StatusInternalServerError),
+				Code:   http.StatusInternalServerError,
+				Error:  err.Error(),
+			}, utils.NewError(
+				utils.WithLogger(
+					err.Error(),
+					utils.LogPrefixInfo,
+					utils.LogLevelInfo,
+				),
+			)
 	}
 
 	data, err := io.ReadAll(res.Body)
 	if err != nil {
 		return &IssuesResponse{
-			Status: http.StatusText(http.StatusInternalServerError),
-			Code:   http.StatusInternalServerError,
-			Error:  err.Error(),
-		}, err
+				Status: http.StatusText(http.StatusInternalServerError),
+				Code:   http.StatusInternalServerError,
+				Error:  err.Error(),
+			}, utils.NewError(
+				utils.WithLogger(
+					err.Error(),
+					utils.LogPrefixInfo,
+					utils.LogLevelInfo,
+				),
+			)
 	}
 
 	var response []map[string]any
 	err = json.Unmarshal(data, &response)
 	if err != nil {
 		return &IssuesResponse{
-			Status: http.StatusText(http.StatusInternalServerError),
-			Code:   http.StatusInternalServerError,
-			Error:  err.Error(),
-		}, err
+				Status: http.StatusText(http.StatusInternalServerError),
+				Code:   http.StatusInternalServerError,
+				Error:  err.Error(),
+			}, utils.NewError(
+				utils.WithLogger(
+					err.Error(),
+					utils.LogPrefixInfo,
+					utils.LogLevelInfo,
+				),
+			)
 	}
 
 	return &IssuesResponse{

@@ -5,25 +5,31 @@ SPDX-License-Identifier: Apache-2.0
 
 package utils
 
-import "log"
-
 type Field func() (interface{}, error)
 
 // NewFieldsMapper takes a set of field options and returns
 // the fields or an error in case of failure.
 func NewFieldsMapper(opts ...Field) (fields interface{}, err error) {
 	if len(opts) == 0 {
-		return nil, ErrEmptyOptions
+		return nil, NewError(
+			WithLogger(
+				ErrZeroLength.Error(),
+				LogPrefixInfo,
+				LogLevelInfo,
+			),
+		)
 	}
 
 	for _, opt := range opts {
 		fields, err = opt()
 		if err != nil {
-			log.Printf(
-				"failed to add field options, error: %s\n",
-				err.Error(),
+			return nil, NewError(
+				WithLogger(
+					err.Error(),
+					LogPrefixInfo,
+					LogLevelInfo,
+				),
 			)
-			return nil, err
 		}
 	}
 
@@ -35,7 +41,7 @@ func NewFieldsMapper(opts ...Field) (fields interface{}, err error) {
 func WithMap(fields map[string]string) Field {
 	return func() (interface{}, error) {
 		if len(fields) == 0 {
-			return nil, ErrEmptyMap
+			return nil, ErrZeroLength
 		}
 
 		for key, value := range fields {
@@ -44,10 +50,6 @@ func WithMap(fields map[string]string) Field {
 				ValidateNotEmpty(value),
 			)
 			if err != nil {
-				log.Printf(
-					"failed to validate map keys or values, error: %s\n",
-					err.Error(),
-				)
 				return nil, err
 			}
 		}

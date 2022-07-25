@@ -21,7 +21,7 @@ func TestNewAuth(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    args
-		want    string
+		errStr  string
 		wantErr error
 	}{
 		{
@@ -40,7 +40,7 @@ func TestNewAuth(t *testing.T) {
 					github.WithToken(""),
 				},
 			},
-			wantErr: utils.ErrEmptyValue,
+			errStr: utils.ErrZeroLength.Error(),
 		},
 		{
 			name: "github.WithToken() return error if token is invalid",
@@ -49,22 +49,26 @@ func TestNewAuth(t *testing.T) {
 					github.WithToken("invalid"),
 				},
 			},
-			wantErr: utils.ErrInvalidMatch,
+			errStr: utils.ErrInvalidMatch.Error(),
 		},
 		{
 			name: "github.NewAuth() return error if there are no options",
 			args: args{
 				opts: []github.Option{},
 			},
-			wantErr: utils.ErrEmptyOptions,
+			errStr: utils.ErrZeroLength.Error(),
 		},
 	}
 
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
 			_, err := github.NewAuth(tc.args.opts...)
+			if err != nil {
+				assert.EqualError(t, err, tc.errStr)
+				return
+			}
+
 			assert.ErrorIs(t, err, tc.wantErr)
 		})
 	}
@@ -79,6 +83,7 @@ func TestAuth_Basic(t *testing.T) {
 		name    string
 		args    args
 		want    string
+		errStr  string
 		wantErr error
 	}{
 		{
@@ -88,7 +93,8 @@ func TestAuth_Basic(t *testing.T) {
 					github.WithToken("ghp_F41fR24d9Tvn3YRzC7GdOPAfhgjBzP5MLP7c"),
 				},
 			},
-			want: "ghp_F41fR24d9Tvn3YRzC7GdOPAfhgjBzP5MLP7c",
+			want:    "ghp_F41fR24d9Tvn3YRzC7GdOPAfhgjBzP5MLP7c",
+			wantErr: nil,
 		},
 		{
 			name: "github.Basic() return error if token is empty",
@@ -97,7 +103,7 @@ func TestAuth_Basic(t *testing.T) {
 					github.WithToken(""),
 				},
 			},
-			wantErr: utils.ErrEmptyValue,
+			errStr: utils.ErrZeroLength.Error(),
 		},
 		{
 			name: "github.Basic() return error if token is invalid",
@@ -106,7 +112,7 @@ func TestAuth_Basic(t *testing.T) {
 					github.WithToken("invalid"),
 				},
 			},
-			wantErr: utils.ErrInvalidMatch,
+			errStr: utils.ErrInvalidMatch.Error(),
 		},
 	}
 
@@ -116,9 +122,11 @@ func TestAuth_Basic(t *testing.T) {
 			t.Parallel()
 			auth, err := github.NewAuth(tc.args.opts...)
 			if err != nil {
-				assert.ErrorIs(t, err, tc.wantErr)
+				assert.EqualError(t, err, tc.errStr)
 				return
 			}
+
+			assert.ErrorIs(t, err, tc.wantErr)
 
 			result := auth.Basic()
 			assert.Equal(t, tc.want, result)
