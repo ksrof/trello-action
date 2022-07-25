@@ -52,7 +52,25 @@ func main() {
 		return
 	}
 
+	pulls := new(github.PullsResponse)
+	pull, err := pulls.Get(
+		context.TODO(),
+		[]utils.Field{
+			utils.WithMap(map[string]string{
+				"username":    "ksrof",         // TODO: Use os.Getenv
+				"repository":  "trello-action", // TODO: Use os.Getenv
+				"pull_id":     "30",            // TODO: Use os.Getenv
+				"request_url": "https://api.github.com/repos/%s/%s/pulls/%s",
+				"token":       auth.Basic(),
+			}),
+		})
+	if err != nil {
+		return
+	}
+
 	fmt.Println(issue)
 	fmt.Println("---------------------------")
 	fmt.Println(labels)
+	fmt.Println("---------------------------")
+	fmt.Println(pull)
 }
