@@ -18,7 +18,8 @@ var (
 	LogLevelInfo int = 1
 )
 
-// LogError returns a newly created error with the given message.
+// LogError returns a newly created error with the given message
+// and logs it using the standard logger.
 func LogError(errStr, prefix string, level int) (err error) {
 	err = Validations(
 		ValidateNotEmpty(errStr),
