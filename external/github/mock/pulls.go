@@ -10,7 +10,6 @@ import (
 
 	gomock "github.com/golang/mock/gomock"
 	github "github.com/ksrof/trello-action/external/github"
-	utils "github.com/ksrof/trello-action/utils"
 )
 
 // MockPulls is a mock of Pulls interface.
@@ -37,7 +36,7 @@ func (m *MockPulls) EXPECT() *MockPullsMockRecorder {
 }
 
 // Get mocks base method.
-func (m *MockPulls) Get(arg0 context.Context, arg1 []utils.Field) (*github.PullsResponse, error) {
+func (m *MockPulls) Get(arg0 context.Context, arg1 map[string]string) (*github.PullsResponse, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Get", arg0, arg1)
 	ret0, _ := ret[0].(*github.PullsResponse)

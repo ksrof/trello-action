@@ -10,7 +10,6 @@ import (
 
 	gomock "github.com/golang/mock/gomock"
 	github "github.com/ksrof/trello-action/external/github"
-	utils "github.com/ksrof/trello-action/utils"
 )
 
 // MockIssues is a mock of Issues interface.
@@ -37,7 +36,7 @@ func (m *MockIssues) EXPECT() *MockIssuesMockRecorder {
 }
 
 // Get mocks base method.
-func (m *MockIssues) Get(arg0 context.Context, arg1 []utils.Field) (*github.IssuesResponse, error) {
+func (m *MockIssues) Get(arg0 context.Context, arg1 map[string]string) (*github.IssuesResponse, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Get", arg0, arg1)
 	ret0, _ := ret[0].(*github.IssuesResponse)
@@ -52,7 +51,7 @@ func (mr *MockIssuesMockRecorder) Get(arg0, arg1 interface{}) *gomock.Call {
 }
 
 // GetLabels mocks base method.
-func (m *MockIssues) GetLabels(arg0 context.Context, arg1 []utils.Field) (*github.IssuesResponse, error) {
+func (m *MockIssues) GetLabels(arg0 context.Context, arg1 map[string]string) (*github.IssuesResponse, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetLabels", arg0, arg1)
 	ret0, _ := ret[0].(*github.IssuesResponse)
