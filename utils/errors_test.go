@@ -30,15 +30,6 @@ func TestNewError(t *testing.T) {
 			errStr: utils.ErrZeroLength.Error(),
 		},
 		{
-			name: "utils.WithMessage() return error if string is empty",
-			args: args{
-				opts: []utils.Errors{
-					utils.WithMessage(""),
-				},
-			},
-			errStr: utils.ErrZeroLength.Error(),
-		},
-		{
 			name: "utils.WithLogger() return error if string is empty",
 			args: args{
 				opts: []utils.Errors{
@@ -46,15 +37,6 @@ func TestNewError(t *testing.T) {
 				},
 			},
 			errStr: utils.ErrZeroLength.Error(),
-		},
-		{
-			name: "utils.WithMessage() return error if string is not empty",
-			args: args{
-				opts: []utils.Errors{
-					utils.WithMessage("an error"),
-				},
-			},
-			errStr: "an error",
 		},
 		{
 			name: "utils.WithLogger() return error if string is not empty and print log level one",
