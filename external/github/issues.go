@@ -16,7 +16,7 @@ import (
 	"github.com/ksrof/trello-action/utils"
 )
 
-// Issues wraps methods that handle issue requests
+// Issues wraps methods that handle issue endpoint requests
 // of an authenticated user within the Github API.
 //go:generate mockgen -destination=mock/issues.go -package=mock . Issues
 type Issues interface {
@@ -24,7 +24,7 @@ type Issues interface {
 	GetLabels(ctx context.Context, opts []utils.Field) (*IssuesResponse, error)
 }
 
-// IssueResponse represents the data returned by issue requests.
+// IssueResponse represents the data returned by the issue endpoint request.
 type IssuesResponse struct {
 	Response interface{}
 	Status   string
