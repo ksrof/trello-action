@@ -1,8 +1,3 @@
-/*
-Copyright 2022 Kevin Suñer
-SPDX-License-Identifier: Apache-2.0
-*/
-
 package utils_test
 
 import (
@@ -12,69 +7,41 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNewFields(t *testing.T) {
-	type args struct {
-		opts []utils.Field
-	}
-
+func TestFieldMapper(t *testing.T) {
 	tests := []struct {
 		name    string
-		args    args
+		values  map[string]string
 		want    map[string]string
-		errStr  string
 		wantErr error
 	}{
 		{
-			name: "utils.WithMap() return nil if key and value are not empty",
-			args: args{
-				opts: []utils.Field{
-					utils.WithMap(map[string]string{
-						"username": "ksrof",
-					}),
-				},
+			name:    "returns error if value length is zero",
+			values:  map[string]string{},
+			wantErr: utils.LogError(utils.ErrZeroLength.Error(), utils.LogPrefixInfo, utils.LogLevelInfo),
+		},
+		{
+			name: "returns error if map key length is zero",
+			values: map[string]string{
+				"": "ksrof",
+			},
+			wantErr: utils.LogError(utils.ErrZeroLength.Error(), utils.LogPrefixInfo, utils.LogLevelInfo),
+		},
+		{
+			name: "returns error if map value length is zero",
+			values: map[string]string{
+				"username": "",
+			},
+			wantErr: utils.LogError(utils.ErrZeroLength.Error(), utils.LogPrefixInfo, utils.LogLevelInfo),
+		},
+		{
+			name: "returns the fields",
+			values: map[string]string{
+				"username": "ksrof",
 			},
 			want: map[string]string{
 				"username": "ksrof",
 			},
 			wantErr: nil,
-		},
-		{
-			name: "utils.WithMap() return error if map is empty",
-			args: args{
-				opts: []utils.Field{
-					utils.WithMap(map[string]string{}),
-				},
-			},
-			errStr: utils.ErrZeroLength.Error(),
-		},
-		{
-			name: "utils.WithMap() return error if key is empty",
-			args: args{
-				opts: []utils.Field{
-					utils.WithMap(map[string]string{
-						"": "ksrof",
-					}),
-				},
-			},
-			errStr: utils.ErrZeroLength.Error(),
-		},
-		{
-			name: "utils.WithMap() return error if value is empty",
-			args: args{
-				opts: []utils.Field{
-					utils.WithMap(map[string]string{
-						"username": "",
-					}),
-				},
-			},
-			errStr: utils.ErrZeroLength.Error(),
-		},
-		{
-			name: "utils.NewFieldsMapper() return error if there are no options",
-			args: args{
-				[]utils.Field{},
-			},
-			errStr: utils.ErrZeroLength.Error(),
 		},
 	}
 
@@ -82,14 +49,14 @@ func TestNewFields(t *testing.T) {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			fields, err := utils.NewFields(tc.args.opts...)
+			fields, err := utils.FieldMapper(tc.values)
 			if err != nil {
-				assert.EqualError(t, err, tc.errStr)
+				assert.ErrorContains(t, err, tc.wantErr.Error())
 				return
 			}
 
 			assert.ErrorIs(t, err, tc.wantErr)
-			assert.Equal(t, tc.want, fields)
+			assert.Equal(t, tc.values, fields)
 		})
 	}
 }
