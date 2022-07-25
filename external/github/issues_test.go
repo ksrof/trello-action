@@ -24,32 +24,27 @@ func TestIssues_Get(t *testing.T) {
 	issues := mock.NewMockIssues(ctrl)
 
 	type args struct {
-		ctx  context.Context
-		opts []utils.Field
+		ctx    context.Context
+		values map[string]string
 	}
 
 	tests := []struct {
 		name    string
 		args    args
 		want    *github.IssuesResponse
-		errStr  string
 		wantErr error
 		mocks   func(issues *mock.MockIssues)
 	}{
 		{
-			name: "issues.Get() returns a successful *github.IssuesResponse struct",
+			name: "returns a successful response",
 			args: args{
 				ctx: ctx,
-				opts: []utils.Field{
-					utils.WithMap(
-						map[string]string{
-							"username":    "ksrof",
-							"repository":  "trello-action",
-							"issue_id":    "30",
-							"request_url": "https://api.github.com",
-							"token":       "ghp_F41fR24d9Tvn3YRzC7GdOPAfhgjBzP5MLP7c",
-						},
-					),
+				values: map[string]string{
+					"username":    "ksrof",
+					"repository":  "trello-action",
+					"issue_id":    "30",
+					"request_url": "https://api.github.com/repos/%s/%s/issues/%s",
+					"token":       "ghp_F41fR24d9Tvn3YRzC7GdOPAfhgjBzP5MLP7c",
 				},
 			},
 			want: &github.IssuesResponse{
@@ -95,99 +90,47 @@ func TestIssues_Get(t *testing.T) {
 			},
 		},
 		{
-			name: "issues.Get() returns a failed *github.IssuesResponse struct if map is empty",
+			name: "returns error if map is empty",
 			args: args{
-				ctx: ctx,
-				opts: []utils.Field{
-					utils.WithMap(map[string]string{}),
-				},
+				ctx:    ctx,
+				values: map[string]string{},
 			},
-			want: &github.IssuesResponse{
-				Status: http.StatusText(http.StatusBadRequest),
-				Code:   http.StatusBadRequest,
-				Error:  utils.ErrZeroLength.Error(),
-			},
-			errStr: utils.ErrZeroLength.Error(),
+			wantErr: utils.LogError(utils.ErrZeroLength.Error(), utils.LogPrefixInfo, utils.LogLevelInfo),
 			mocks: func(issues *mock.MockIssues) {
 				issues.EXPECT().Get(ctx, gomock.Any()).
-					Return(
-						&github.IssuesResponse{
-							Status: http.StatusText(http.StatusBadRequest),
-							Code:   http.StatusBadRequest,
-							Error:  utils.ErrZeroLength.Error(),
-						}, utils.NewError(
-							utils.WithLogger(
-								utils.ErrZeroLength.Error(),
-								utils.LogPrefixInfo,
-								utils.LogLevelInfo,
-							),
-						)).MaxTimes(1)
+					Return(nil,
+						utils.LogError(utils.ErrZeroLength.Error(), utils.LogPrefixInfo, utils.LogLevelInfo)).
+					MaxTimes(1)
 			},
 		},
 		{
-			name: "issues.Get() returns a failed *github.IssuesResponse struct if map value is empty",
+			name: "returns error if map value length is zero",
 			args: args{
 				ctx: ctx,
-				opts: []utils.Field{
-					utils.WithMap(
-						map[string]string{
-							"username": "",
-						},
-					),
+				values: map[string]string{
+					"": "ksrof",
 				},
 			},
-			want: &github.IssuesResponse{
-				Status: http.StatusText(http.StatusBadRequest),
-				Code:   http.StatusBadRequest,
-				Error:  utils.ErrZeroLength.Error(),
-			},
-			errStr: utils.ErrZeroLength.Error(),
+			wantErr: utils.LogError(utils.ErrZeroLength.Error(), utils.LogPrefixInfo, utils.LogLevelInfo),
 			mocks: func(issues *mock.MockIssues) {
 				issues.EXPECT().Get(ctx, gomock.Any()).
-					Return(
-						&github.IssuesResponse{
-							Status: http.StatusText(http.StatusBadRequest),
-							Code:   http.StatusBadRequest,
-							Error:  utils.ErrZeroLength.Error(),
-						}, utils.NewError(
-							utils.WithLogger(
-								utils.ErrZeroLength.Error(),
-								utils.LogPrefixInfo,
-								utils.LogLevelInfo,
-							),
-						)).MaxTimes(1)
+					Return(nil,
+						utils.LogError(utils.ErrZeroLength.Error(), utils.LogPrefixInfo, utils.LogLevelInfo)).
+					MaxTimes(1)
 			},
 		},
 		{
-			name: "issues.Get() returns a failed *github.IssuesResponse struct if map key is empty",
+			name: "returns error if map key is empty",
 			args: args{
-				ctx: ctx,
-				opts: []utils.Field{
-					utils.WithMap(map[string]string{
-						"": "ksrof",
-					}),
-				},
+				ctx:    ctx,
+				values: map[string]string{},
 			},
-			want: &github.IssuesResponse{
-				Status: http.StatusText(http.StatusBadRequest),
-				Code:   http.StatusBadRequest,
-				Error:  utils.ErrZeroLength.Error(),
-			},
-			errStr: utils.ErrZeroLength.Error(),
+			wantErr: utils.LogError(utils.ErrZeroLength.Error(), utils.LogPrefixInfo, utils.LogLevelInfo),
 			mocks: func(issues *mock.MockIssues) {
 				issues.EXPECT().Get(ctx, gomock.Any()).
-					Return(
-						&github.IssuesResponse{
-							Status: http.StatusText(http.StatusBadRequest),
-							Code:   http.StatusBadRequest,
-							Error:  utils.ErrZeroLength.Error(),
-						}, utils.NewError(
-							utils.WithLogger(
-								utils.ErrZeroLength.Error(),
-								utils.LogPrefixInfo,
-								utils.LogLevelInfo,
-							),
-						)).MaxTimes(1)
+					Return(nil,
+						utils.LogError(utils.ErrZeroLength.Error(), utils.LogPrefixInfo, utils.LogLevelInfo)).
+					MaxTimes(1)
 			},
 		},
 	}
@@ -197,10 +140,9 @@ func TestIssues_Get(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 			tc.mocks(issues)
-			issue, err := issues.Get(tc.args.ctx, tc.args.opts)
+			issue, err := issues.Get(tc.args.ctx, tc.args.values)
 			if err != nil {
-				assert.EqualError(t, err, tc.errStr)
-				assert.Equal(t, tc.want, issue)
+				assert.ErrorContains(t, err, tc.wantErr.Error())
 				return
 			}
 
@@ -215,32 +157,27 @@ func TestIssues_GetLabels(t *testing.T) {
 	issues := mock.NewMockIssues(ctrl)
 
 	type args struct {
-		ctx  context.Context
-		opts []utils.Field
+		ctx    context.Context
+		values map[string]string
 	}
 
 	tests := []struct {
 		name    string
 		args    args
 		want    *github.IssuesResponse
-		errStr  string
 		wantErr error
 		mocks   func(issues *mock.MockIssues)
 	}{
 		{
-			name: "issues.GetLabels() returns a successful *github.IssuesResponse struct",
+			name: "returns a successful response",
 			args: args{
 				ctx: ctx,
-				opts: []utils.Field{
-					utils.WithMap(
-						map[string]string{
-							"username":    "ksrof",
-							"repository":  "trello-action",
-							"issue_id":    "30",
-							"request_url": "https://api.github.com",
-							"token":       "ghp_F41fR24d9Tvn3YRzC7GdOPAfhgjBzP5MLP7c",
-						},
-					),
+				values: map[string]string{
+					"username":    "ksrof",
+					"repository":  "trello-action",
+					"issue_id":    "30",
+					"request_url": "https://api.github.com/repos/%s/%s/issues/%s/labels",
+					"token":       "ghp_F41fR24d9Tvn3YRzC7GdOPAfhgjBzP5MLP7c",
 				},
 			},
 			want: &github.IssuesResponse{
@@ -300,97 +237,49 @@ func TestIssues_GetLabels(t *testing.T) {
 			},
 		},
 		{
-			name: "issues.GetLabels() returns a failed *github.IssuesResponse struct if map is empty",
+			name: "returns an error if map is empty",
 			args: args{
-				ctx: ctx,
-				opts: []utils.Field{
-					utils.WithMap(map[string]string{}),
-				},
+				ctx:    ctx,
+				values: map[string]string{},
 			},
-			want: &github.IssuesResponse{
-				Status: http.StatusText(http.StatusBadRequest),
-				Code:   http.StatusBadRequest,
-				Error:  utils.ErrZeroLength.Error(),
-			},
-			errStr: utils.ErrZeroLength.Error(),
+			wantErr: utils.LogError(utils.ErrZeroLength.Error(), utils.LogPrefixInfo, utils.LogLevelInfo),
 			mocks: func(issues *mock.MockIssues) {
 				issues.EXPECT().GetLabels(ctx, gomock.Any()).
-					Return(
-						&github.IssuesResponse{
-							Status: http.StatusText(http.StatusBadRequest),
-							Code:   http.StatusBadRequest,
-							Error:  utils.ErrZeroLength.Error(),
-						}, utils.NewError(
-							utils.WithLogger(
-								utils.ErrZeroLength.Error(),
-								utils.LogPrefixInfo,
-								utils.LogLevelInfo,
-							),
-						)).MaxTimes(1)
+					Return(nil,
+						utils.LogError(utils.ErrZeroLength.Error(), utils.LogPrefixInfo, utils.LogLevelInfo)).
+					MaxTimes(1)
 			},
 		},
 		{
-			name: "issues.GetLabels() returns a failed *github.IssuesResponse struct if map value is empty",
+			name: "returns an error if map value is empty",
 			args: args{
 				ctx: ctx,
-				opts: []utils.Field{
-					utils.WithMap(
-						map[string]string{
-							"username": "",
-						},
-					),
+				values: map[string]string{
+					"username": "",
 				},
 			},
-			want: &github.IssuesResponse{
-				Status: http.StatusText(http.StatusBadRequest),
-				Code:   http.StatusBadRequest,
-				Error:  utils.ErrZeroLength.Error(),
-			},
-			errStr: utils.ErrZeroLength.Error(),
+			wantErr: utils.LogError(utils.ErrZeroLength.Error(), utils.LogPrefixInfo, utils.LogLevelInfo),
 			mocks: func(issues *mock.MockIssues) {
 				issues.EXPECT().GetLabels(ctx, gomock.Any()).
-					Return(
-						&github.IssuesResponse{
-							Status: http.StatusText(http.StatusBadRequest),
-							Code:   http.StatusBadRequest,
-							Error:  utils.ErrZeroLength.Error(),
-						}, utils.NewError(
-							utils.WithLogger(
-								utils.ErrZeroLength.Error(),
-								utils.LogPrefixInfo,
-								utils.LogLevelInfo,
-							),
-						)).MaxTimes(1)
+					Return(nil,
+						utils.LogError(utils.ErrZeroLength.Error(), utils.LogPrefixInfo, utils.LogLevelInfo)).
+					MaxTimes(1)
 			},
 		},
 		{
-			name: "issues.GetLabels() returns a failed *github.IssuesResponse struct if map key is empty",
+			name: "returns an error if map key is empty",
 			args: args{
 				ctx: ctx,
-				opts: []utils.Field{
-					utils.WithMap(map[string]string{}),
+				values: map[string]string{
+					"": "ksrof",
 				},
 			},
-			want: &github.IssuesResponse{
-				Status: http.StatusText(http.StatusBadRequest),
-				Code:   http.StatusBadRequest,
-				Error:  utils.ErrZeroLength.Error(),
-			},
-			errStr: utils.ErrZeroLength.Error(),
+			wantErr: utils.LogError(utils.ErrZeroLength.Error(), utils.LogPrefixInfo, utils.LogLevelInfo),
 			mocks: func(issues *mock.MockIssues) {
 				issues.EXPECT().GetLabels(ctx, gomock.Any()).
-					Return(
-						&github.IssuesResponse{
-							Status: http.StatusText(http.StatusBadRequest),
-							Code:   http.StatusBadRequest,
-							Error:  utils.ErrZeroLength.Error(),
-						}, utils.NewError(
-							utils.WithLogger(
-								utils.ErrZeroLength.Error(),
-								utils.LogPrefixInfo,
-								utils.LogLevelInfo,
-							),
-						)).MaxTimes(1)
+					Return(nil,
+						utils.LogError(utils.ErrZeroLength.Error(), utils.LogPrefixInfo, utils.LogLevelInfo)).
+					MaxTimes(1)
 			},
 		},
 	}
@@ -400,10 +289,9 @@ func TestIssues_GetLabels(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 			tc.mocks(issues)
-			issueLabels, err := issues.GetLabels(tc.args.ctx, tc.args.opts)
+			issueLabels, err := issues.GetLabels(tc.args.ctx, tc.args.values)
 			if err != nil {
-				assert.EqualError(t, err, tc.errStr)
-				assert.Equal(t, tc.want, issueLabels)
+				assert.ErrorContains(t, err, tc.wantErr.Error())
 				return
 			}
 
