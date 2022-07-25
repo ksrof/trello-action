@@ -1,8 +1,3 @@
-/*
-Copyright 2022 Kevin Suñer
-SPDX-License-Identifier: Apache-2.0
-*/
-
 package utils_test
 
 import (
@@ -12,49 +7,35 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNewError(t *testing.T) {
+func TestLogError(t *testing.T) {
 	type args struct {
-		opts []utils.Errors
+		errStr string
+		prefix string
+		level  int
 	}
 
 	tests := []struct {
-		name   string
-		args   args
-		errStr string
+		name    string
+		args    args
+		wantErr error
 	}{
 		{
-			name: "utils.NewError() return error if there are no options",
+			name: "returns an error if the error string length is zero",
 			args: args{
-				opts: []utils.Errors{},
+				errStr: "",
+				prefix: utils.LogPrefixInfo,
+				level:  utils.LogLevelInfo,
 			},
-			errStr: utils.ErrZeroLength.Error(),
+			wantErr: utils.LogError(utils.ErrZeroLength.Error(), utils.LogPrefixInfo, utils.LogLevelInfo),
 		},
 		{
-			name: "utils.WithLogger() return error if string is empty",
+			name: "returns an error",
 			args: args{
-				opts: []utils.Errors{
-					utils.WithLogger("", "", 1),
-				},
+				errStr: "an error",
+				prefix: utils.LogPrefixInfo,
+				level:  utils.LogLevelInfo,
 			},
-			errStr: utils.ErrZeroLength.Error(),
-		},
-		{
-			name: "utils.WithLogger() return error if string is not empty and print log level one",
-			args: args{
-				opts: []utils.Errors{
-					utils.WithLogger("level one", "", 1),
-				},
-			},
-			errStr: "level one",
-		},
-		{
-			name: "utils.WithLogger() return error if string is not empty and print default log",
-			args: args{
-				opts: []utils.Errors{
-					utils.WithLogger("default", "", 5),
-				},
-			},
-			errStr: "default",
+			wantErr: utils.LogError("an error", utils.LogPrefixInfo, utils.LogLevelInfo),
 		},
 	}
 
@@ -62,8 +43,8 @@ func TestNewError(t *testing.T) {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			err := utils.NewError(tc.args.opts...)
-			assert.EqualError(t, err, tc.errStr)
+			err := utils.LogError(tc.args.errStr, tc.args.prefix, tc.args.level)
+			assert.ErrorContains(t, err, tc.wantErr.Error())
 		})
 	}
 }
