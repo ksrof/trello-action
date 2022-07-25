@@ -1,8 +1,3 @@
-/*
-Copyright 2022 Kevin Suñer
-SPDX-License-Identifier: Apache-2.0
-*/
-
 package github_test
 
 import (
@@ -13,106 +8,30 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNewAuth(t *testing.T) {
-	type args struct {
-		opts []github.Option
-	}
-
+func TestOAuth(t *testing.T) {
 	tests := []struct {
 		name    string
-		args    args
-		errStr  string
-		wantErr error
-	}{
-		{
-			name: "github.WithToken() return nil if token is valid",
-			args: args{
-				opts: []github.Option{
-					github.WithToken("ghp_F41fR24d9Tvn3YRzC7GdOPAfhgjBzP5MLP7c"),
-				},
-			},
-			wantErr: nil,
-		},
-		{
-			name: "github.WithToken() return error if token is empty",
-			args: args{
-				opts: []github.Option{
-					github.WithToken(""),
-				},
-			},
-			errStr: utils.ErrZeroLength.Error(),
-		},
-		{
-			name: "github.WithToken() return error if token is invalid",
-			args: args{
-				opts: []github.Option{
-					github.WithToken("invalid"),
-				},
-			},
-			errStr: utils.ErrInvalidMatch.Error(),
-		},
-		{
-			name: "github.NewAuth() return error if there are no options",
-			args: args{
-				opts: []github.Option{},
-			},
-			errStr: utils.ErrZeroLength.Error(),
-		},
-	}
-
-	for _, tc := range tests {
-		tc := tc
-		t.Run(tc.name, func(t *testing.T) {
-			_, err := github.NewAuth(tc.args.opts...)
-			if err != nil {
-				assert.EqualError(t, err, tc.errStr)
-				return
-			}
-
-			assert.ErrorIs(t, err, tc.wantErr)
-		})
-	}
-}
-
-func TestAuth_Basic(t *testing.T) {
-	type args struct {
-		opts []github.Option
-	}
-
-	tests := []struct {
-		name    string
-		args    args
+		value   string
 		want    string
-		errStr  string
 		wantErr error
 	}{
 		{
-			name: "github.Basic() return string if token is valid",
-			args: args{
-				opts: []github.Option{
-					github.WithToken("ghp_F41fR24d9Tvn3YRzC7GdOPAfhgjBzP5MLP7c"),
-				},
-			},
+			name:    "returns an error if the value length is zero",
+			value:   "",
+			want:    "",
+			wantErr: utils.LogError(utils.ErrZeroLength.Error(), utils.LogPrefixInfo, utils.LogLevelInfo),
+		},
+		{
+			name:    "returns an error if the value does not match the regexp",
+			value:   "abc123",
+			want:    "",
+			wantErr: utils.LogError(utils.ErrInvalidMatch.Error(), utils.LogPrefixInfo, utils.LogLevelInfo),
+		},
+		{
+			name:    "returns a token",
+			value:   "ghp_F41fR24d9Tvn3YRzC7GdOPAfhgjBzP5MLP7c",
 			want:    "ghp_F41fR24d9Tvn3YRzC7GdOPAfhgjBzP5MLP7c",
 			wantErr: nil,
-		},
-		{
-			name: "github.Basic() return error if token is empty",
-			args: args{
-				opts: []github.Option{
-					github.WithToken(""),
-				},
-			},
-			errStr: utils.ErrZeroLength.Error(),
-		},
-		{
-			name: "github.Basic() return error if token is invalid",
-			args: args{
-				opts: []github.Option{
-					github.WithToken("invalid"),
-				},
-			},
-			errStr: utils.ErrInvalidMatch.Error(),
 		},
 	}
 
@@ -120,16 +39,14 @@ func TestAuth_Basic(t *testing.T) {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			auth, err := github.NewAuth(tc.args.opts...)
+			token, err := github.Basic(tc.value)
 			if err != nil {
-				assert.EqualError(t, err, tc.errStr)
+				assert.ErrorContains(t, err, tc.wantErr.Error())
 				return
 			}
 
 			assert.ErrorIs(t, err, tc.wantErr)
-
-			result := auth.Basic()
-			assert.Equal(t, tc.want, result)
+			assert.Equal(t, tc.want, token)
 		})
 	}
 }
