@@ -1,3 +1,8 @@
+/*
+Copyright 2022 Kevin Suñer
+SPDX-License-Identifier: Apache-2.0
+*/
+
 package utils
 
 // FieldMapper returns a map with the given values.
