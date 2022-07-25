@@ -1,8 +1,3 @@
-/*
-Copyright 2022 Kevin Suñer
-SPDX-License-Identifier: Apache-2.0
-*/
-
 package utils
 
 import (
@@ -11,53 +6,36 @@ import (
 )
 
 var (
-	ErrZeroLength   error = errors.New("value should not have a length of zero")
-	ErrInvalidType  error = errors.New("value type is invalid")
+	// Errors.
+	ErrZeroLength   error = errors.New("value length can not be zero")
 	ErrInvalidMatch error = errors.New("value does not match the regexp pattern")
+	ErrInvalidType  error = errors.New("value type is not valid")
 
+	// Prefixes.
 	LogPrefixInfo string = "[INFO]"
 
+	// Levels.
 	LogLevelInfo int = 1
 )
 
-type Errors func() error
-
-// NewError takes a set of options and returns
-// a newly customized error.
-func NewError(opts ...Errors) (err error) {
-	if len(opts) == 0 {
-		return ErrZeroLength
-	}
-
-	for _, opt := range opts {
-		err = opt()
+// LogError returns a newly created error with the given message.
+func LogError(errStr, prefix string, level int) (err error) {
+	err = Validations(
+		ValidateNotEmpty(errStr),
+	)
+	if err != nil {
 		return err
 	}
 
-	return nil
-}
+	log.SetPrefix(prefix)
+	err = errors.New(errStr)
 
-// WithLogger sets the message of the error,
-// and logs it using the standard logger.
-func WithLogger(errMessage, prefix string, level int) Errors {
-	return func() error {
-		err := Validations(
-			ValidateNotEmpty(errMessage),
-		)
-		if err != nil {
-			return err
-		}
-
-		log.SetPrefix(prefix)
-		err = errors.New(errMessage)
-
-		switch level {
-		case 1:
-			log.Println(errMessage)
-			return err
-		default:
-			log.Println(errMessage)
-			return err
-		}
+	switch level {
+	case 1:
+		log.Println(err)
+		return err
+	default:
+		log.Println(err)
+		return err
 	}
 }
