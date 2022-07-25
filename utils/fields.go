@@ -7,9 +7,9 @@ package utils
 
 type Field func() (interface{}, error)
 
-// NewFieldsMapper takes a set of field options and returns
+// NewFields takes a set of field options and returns
 // the fields or an error in case of failure.
-func NewFieldsMapper(opts ...Field) (fields interface{}, err error) {
+func NewFields(opts ...Field) (fields interface{}, err error) {
 	if len(opts) == 0 {
 		return nil, NewError(
 			WithLogger(

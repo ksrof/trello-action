@@ -16,9 +16,6 @@ import (
 	"github.com/ksrof/trello-action/utils"
 )
 
-// TODO: Generate mocks for the Issues interface.
-// TODO: Test that every method works as expected.
-
 // Issues wraps methods that handle issue requests
 // of an authenticated user within the Github API.
 //go:generate mockgen -destination=mock/issues.go -package=mock . Issues
@@ -37,7 +34,7 @@ type IssuesResponse struct {
 
 // Get returns a specific issue by its identifier.
 func (r *IssuesResponse) Get(ctx context.Context, opts []utils.Field) (*IssuesResponse, error) {
-	fields, err := utils.NewFieldsMapper(opts...)
+	fields, err := utils.NewFields(opts...)
 	if err != nil {
 		return &IssuesResponse{
 			Status: http.StatusText(http.StatusBadRequest),
@@ -124,7 +121,7 @@ func (r *IssuesResponse) Get(ctx context.Context, opts []utils.Field) (*IssuesRe
 
 // GetLabels returns the labels from a specific issue by its identifier.
 func (r *IssuesResponse) GetLabels(ctx context.Context, opts []utils.Field) (*IssuesResponse, error) {
-	fields, err := utils.NewFieldsMapper(opts...)
+	fields, err := utils.NewFields(opts...)
 	if err != nil {
 		return &IssuesResponse{
 			Status: http.StatusText(http.StatusBadRequest),
