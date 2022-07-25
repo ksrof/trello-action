@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNewFieldsMapper(t *testing.T) {
+func TestNewFields(t *testing.T) {
 	type args struct {
 		opts []utils.Field
 	}
@@ -82,7 +82,7 @@ func TestNewFieldsMapper(t *testing.T) {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			fields, err := utils.NewFieldsMapper(tc.args.opts...)
+			fields, err := utils.NewFields(tc.args.opts...)
 			if err != nil {
 				assert.EqualError(t, err, tc.errStr)
 				return
